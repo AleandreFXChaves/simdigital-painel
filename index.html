@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sim Digital RS · Claudette</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --blue:#378ADD;--blue-light:#1A3050;--blue-dark:#7AB8F5;--blue-mid:#1E5FA5;
+    --green:#2E8B57;--green-light:#112019;--green-dark:#5DCB8A;
+    --amber:#EF9F27;--amber-light:#2A1F0A;--amber-dark:#FAC775;
+    --red:#E05555;--red-light:#2A1010;--red-dark:#F09595;
+    --bg:#0D1B2A;--border:rgba(100,160,230,0.12);
+    --muted:#5580A0;--white:#112234;--text:#E0EAF5;--r:10px;--rs:6px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+  #ls{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+  .lbox{background:#112234;border:0.5px solid rgba(100,160,230,0.15);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:380px}
+  .lbrand{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:2rem}
+  .bdot{width:12px;height:12px;border-radius:50%;background:var(--blue)}
+  .bname{font-size:17px;font-weight:500}
+  .ltitle{font-size:15px;font-weight:500;text-align:center;margin-bottom:4px}
+  .lsub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:1.75rem}
+  .fld{margin-bottom:1rem}
+  .fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  .fld input{width:100%;padding:10px 12px;font-size:13px;border:0.5px solid rgba(100,160,230,0.2);border-radius:var(--rs);background:#0D1B2A;color:var(--text);font-family:inherit;outline:none;transition:border-color .15s}
+  .fld input:focus{border-color:var(--blue)}
+  .lbtn{width:100%;padding:11px;font-size:14px;font-weight:500;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;transition:background .15s}
+  .lbtn:hover{background:var(--blue-dark)}
+  .lerr{font-size:12px;color:var(--red);text-align:center;margin-top:10px;display:none}
+  .lhint{font-size:11px;color:var(--muted);text-align:center;margin-top:1rem;line-height:1.6}
+  #as{display:none;min-height:100vh}
+  .topbar{background:#112234;border-bottom:0.5px solid rgba(100,160,230,0.15);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+  .tl{display:flex;align-items:center;gap:10px}
+  .tbrand{font-size:14px;font-weight:500}
+  .tsep{color:var(--border);font-size:18px}
+  .tpage{font-size:13px;color:var(--muted)}
+  .tr2{display:flex;align-items:center;gap:10px}
+  .uchip{display:flex;align-items:center;gap:7px;background:var(--bg);border-radius:999px;padding:4px 10px 4px 4px}
+  .uav{width:26px;height:26px;border-radius:50%;background:var(--blue-light);color:var(--blue-dark);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500}
+  .uname{font-size:12px;font-weight:500}
+  .ctag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:999px}
+  .cpap{background:var(--amber-light);color:var(--amber-dark)}
+  .cint{background:var(--blue-light);color:var(--blue-dark)}
+  .cgest{background:var(--green-light);color:var(--green-dark)}
+  .nav-tab{font-size:12px;font-weight:500;padding:5px 14px;border:none;background:transparent;color:#5580A0;cursor:pointer;font-family:inherit;border-radius:var(--rs);transition:all .15s}
+  .nav-tab:hover{background:#1A3050;color:var(--text)}
+  .nav-tab.active{background:#1E5FA5;color:#fff}
+  .outbtn{font-size:12px;color:#5580A0;border:0.5px solid rgba(100,160,230,0.2);background:transparent;border-radius:var(--rs);padding:5px 10px;cursor:pointer;font-family:inherit}
+  .outbtn:hover{background:var(--bg)}
+  .main{padding:1.5rem;max-width:1100px;margin:0 auto}
+  .upbar{background:#112234;border:0.5px solid rgba(100,160,230,0.12);border-radius:var(--r);padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:1.25rem;flex-wrap:wrap}
+  .uplbl{display:flex;align-items:center;gap:8px;background:var(--blue);color:#fff;border-radius:var(--rs);padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:background .15s;white-space:nowrap;flex-shrink:0}
+  .uplbl:hover{background:var(--blue-dark)}
+  .uplbl input{display:none}
+  .upinfo{flex:1;min-width:200px}
+  .od-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .od-input{flex:1;padding:7px 10px;font-size:12px;border:0.5px solid rgba(100,160,230,0.2);border-radius:var(--rs);background:#0D1B2A;color:var(--text);font-family:inherit;outline:none;min-width:0}
+  .od-input:focus{border-color:var(--blue)}
+  .od-btn{padding:7px 12px;font-size:12px;font-weight:500;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+  .od-btn:hover{background:var(--blue-dark)}
+  .od-btn.sec{background:transparent;color:var(--blue);border:0.5px solid var(--blue-mid)}
+  .od-btn.sec:hover{background:var(--blue-light)}
+  .upst{font-size:12px;color:var(--muted)}
+  .upst.ok{color:var(--green)}.upst.err{color:var(--red)}
+  .updt{font-size:11px;color:var(--muted);margin-top:2px}
+  .dbg{display:none;background:#fffbe6;border:0.5px solid #f0c040;border-radius:var(--rs);padding:12px 14px;margin-top:10px;font-size:11px;color:#5a4a00;line-height:1.9;width:100%}
+  .dbg.show{display:block}
+  .dbg b{display:block;font-size:12px;margin-bottom:4px}
+  .dbg code{background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:10px}
+  .vtog{display:flex;gap:6px;margin-bottom:1.25rem}
+  .vtbtn{padding:6px 14px;font-size:12px;font-weight:500;border:0.5px solid rgba(100,160,230,0.2);border-radius:var(--rs);background:transparent;color:#5580A0;cursor:pointer;font-family:inherit;transition:all .15s}
+  .vtbtn.active{background:#1E5FA5;color:#fff;border-color:#2D70BB}
+  /* filtro canal */
+  .filtro-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+  .filtro-label{font-size:12px;color:var(--muted)}
+  .filtro-select{font-size:12px;padding:6px 10px;border:0.5px solid rgba(100,160,230,0.2);border-radius:var(--rs);background:#0D1B2A;color:var(--text);font-family:inherit;cursor:pointer;min-width:180px}
+  .filtro-count{font-size:11px;color:var(--muted);margin-left:auto}
+  .dias-config{background:#112234;border:0.5px solid rgba(100,160,230,0.12);border-radius:var(--r);padding:14px 18px;margin-bottom:1.25rem;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .dias-group{display:flex;align-items:center;gap:8px}
+  .dias-group label{font-size:12px;color:var(--muted);white-space:nowrap}
+  .dias-input{width:64px;padding:6px 8px;font-size:13px;font-weight:500;border:0.5px solid rgba(100,160,230,0.2);border-radius:var(--rs);background:#0D1B2A;color:var(--text);font-family:inherit;text-align:center}
+  .dias-input:focus{outline:none;border-color:var(--blue)}
+  .dias-sep{width:0.5px;height:28px;background:var(--border)}
+  .dias-info{font-size:11px;color:var(--muted)}
+  .filtro-ativo{display:none;background:#1A3050;border:0.5px solid #2D5FA3;border-radius:999px;padding:4px 12px;font-size:11px;color:#7AB8F5;align-items:center;gap:8px;cursor:pointer;margin-bottom:1rem}
+  .filtro-ativo.show{display:flex}
+  .filtro-ativo span{font-weight:500}
+  .filtro-ativo button{background:none;border:none;color:var(--blue-dark);cursor:pointer;font-size:14px;line-height:1;padding:0}
+  .dias-trab{width:48px;padding:4px 6px;font-size:12px;border:0.5px solid rgba(100,160,230,0.2);border-radius:var(--rs);background:#0D1B2A;color:var(--text);font-family:inherit;text-align:center}
+  .dias-trab:focus{outline:none;border-color:var(--blue)}
+  .sl{font-size:10px;font-weight:500;color:#4A7090;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+  .mts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+  .mc{background:#0D1B2A;border:0.5px solid rgba(100,160,230,0.1);border-radius:var(--rs);padding:14px;display:flex;flex-direction:column;justify-content:space-between;min-height:90px}
+  .mlb{font-size:11px;color:var(--muted);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mv{font-size:20px;font-weight:500;line-height:1.2;word-break:break-word}
+  .ms{font-size:11px;margin-top:6px;min-height:16px}
+  .up2{color:var(--green)}.wa{color:var(--amber)}.dg{color:var(--red)}.nt{color:var(--muted)}
+  .card{background:#112234;border:0.5px solid rgba(100,160,230,0.12);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem}
+  .gr{margin-bottom:14px}.gr:last-child{margin-bottom:0}
+  .gh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .gn{font-size:13px}.gns{font-size:12px;color:var(--muted)}.gns b{color:var(--text)}
+  .bt{height:7px;background:#0D1B2A;border-radius:999px;overflow:hidden}
+  .bf{height:100%;border-radius:999px;transition:width 1s ease}
+  .bbl{background:var(--blue)}.bam{background:#BA7517}.bgr{background:var(--green)}.brd{background:#E24B4A}
+  .gf{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--muted)}
+  .rl{list-style:none}
+  .ri{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+  .ri:last-child{border-bottom:none}
+  .rp{width:18px;font-size:12px;font-weight:500;color:var(--muted);flex-shrink:0}
+  .rp.me{color:var(--blue)}
+  .ra{width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--muted);flex-shrink:0}
+  .ra.me{background:var(--blue-light);color:var(--blue)}
+  .rna{flex:1}.rna.me{font-weight:500;color:var(--blue)}
+  .rv{font-size:13px;font-weight:500}
+  .tbl{width:100%;font-size:12px;border-collapse:collapse}
+  .tbl th{text-align:left;color:var(--muted);font-weight:500;padding:0 0 8px;border-bottom:0.5px solid var(--border)}
+  .tbl td{padding:7px 0;border-bottom:0.5px solid var(--border);vertical-align:middle}
+  .tbl tr:last-child td{border-bottom:none}
+  .gw{overflow-x:auto}
+  .gt{width:100%;font-size:12px;border-collapse:collapse;min-width:720px}
+  .gt th{text-align:left;color:var(--muted);font-weight:500;padding:6px 10px;border-bottom:0.5px solid rgba(100,160,230,0.12);white-space:nowrap}
+  .gt td{padding:9px 10px;border-bottom:0.5px solid rgba(100,160,230,0.08);vertical-align:middle;white-space:nowrap}
+  .gt tr:last-child td{border-bottom:none}
+  .dw{overflow-x:auto}
+  .dt{width:100%;font-size:11px;border-collapse:collapse;min-width:900px}
+  .dt th{text-align:left;color:var(--muted);font-weight:500;padding:5px 8px;border-bottom:0.5px solid var(--border);white-space:nowrap}
+  .dt td{padding:7px 8px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+  .dt tr:last-child td{border-bottom:none}
+  .bdg{display:inline-block;border-radius:var(--rs);padding:2px 7px;font-size:11px}
+  .ba{background:var(--green-light);color:var(--green-dark)}.bc{background:var(--red-light);color:var(--red)}.bh{background:var(--blue-light);color:var(--blue-dark)}.bag{background:#F1EFE8;color:#5F5E5A}.bp{background:var(--amber-light);color:var(--amber-dark)}
+
+  .tabs{display:flex;gap:6px;margin-bottom:1rem}
+  .tb{padding:5px 12px;font-size:12px;border:0.5px solid rgba(100,160,230,0.15);border-radius:var(--rs);background:transparent;color:#5580A0;cursor:pointer;font-family:inherit}
+  .tb.active{background:#1E5FA5;color:#fff;border-color:#2D70BB}
+  .chw{position:relative;width:100%;height:160px}
+  .mtr{height:5px;background:var(--bg);border-radius:999px;overflow:hidden;width:50px;display:inline-block;vertical-align:middle;margin-left:6px}
+  .mfi{height:100%;border-radius:999px;background:var(--blue)}
+  .hidden{display:none!important}
+  @media(max-width:640px){.mts{grid-template-columns:1fr 1fr}.main{padding:1rem}}
+</style>
+</head>
+<body>
+
+<div id="ls">
+  <div class="lbox">
+    <div class="lbrand"><div class="bdot"></div><div class="bname">Sim Digital RS</div></div>
+    <div class="ltitle">Painel de Vendas</div>
+    <div class="lsub">Entre com suas credenciais para acessar</div>
+    <div class="fld"><label>Usuário</label><input type="text" id="iu" placeholder="seu.usuario" autocomplete="username"/></div>
+    <div class="fld"><label>Senha</label><input type="password" id="ip" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="lbtn" onclick="doLogin()">Entrar</button>
+    <div class="lerr" id="le">Usuário ou senha incorretos.</div>
+    <div class="lhint">Demo: <b>gestor01</b> / <b>gestor123</b><br>Vendedor: nome completo da planilha / <b>sim123</b></div>
+  </div>
+</div>
+
+<div id="as">
+  <div class="topbar">
+    <div class="tl"><img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAEAAQADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAYHBAUIAwIB/8QARxAAAQMDAQQGBAoGCQUAAAAAAQACAwQFEQYHEiExCBNBUWFxIjKBshQVNjdzdZGhsbM1Q1JicnQWFyM0QoKS0dJEU2OUwf/EABoBAQADAQEBAAAAAAAAAAAAAAADBAUCBgH/xAA7EQACAAQCBwQHBwQDAAAAAAAAAQIDBBEFIQYSMUFRYXETIoGhMjVykcHR8BQ2QrHC4fEVFiMzUmKS/9oADAMBAAIRAxEAPwDjJERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEWVb7dcLi9zLfQ1VY9oy5sELpCPPAXjUQTU07oKiGSGVhw5kjS1zT4g8lzrQt6t8zpwRKHWay4nmiIujkIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIitbZ1sn+N7ZDdr/UzU8E7Q+GnhwHuaeTnEg4B5gY5dyqVlbJo5evNdkX8OwypxGb2VPDd7+C6lUoui5dkGjnxbjY66N37bajj94I+5VXtN2f1WkXsq4JjV2yZ242UjD43c91w/Ajng8lSo8cpKuZ2cDab47zTxHRbEKCU50xJwrbZ3t12FmbBLhZjotlFTywx18cr3VbCQHuJcd13iN3dGfAqF9IWutFZqGhjoJIpayGFzauSMgjiRuNJHaPS+0L32TbPbFqjTElyuUlaJhVPiAikDW7oa09oPeVHdrul7dpTUFNQ2x9Q6KWlEzuueHEO33DgQBw9ELNpJVMsWjihjbizytlzzvmuGRuYhPrYtH5cMcuFS7Q53ztuytk+Lvx4kLRdBw7HNJOhY4zXMktBJ69v/FazS+xmgbAZtQVVQ+ZziWwQPAaxueAc7HpHHdgeauLSOh1W7vLkZj0MxRRww6qz33yXUo9Fe+odjFnmpHusdZUUtUBljZ378bvA8Mjz4+SjGhNklwucks+ojNbqaKQxiJoHWykHBIJyA3uPHPZw4qaXj1FHKczWtbc9vu3lebopicufDJ1L33p5eL3ePgVei6GqdjmkpICyJ9whkxwkEwJz4gjCp/aDo6v0hdG09Q8T0swLqeoa3AeBzBHY4ZGR4hd0WM0tZH2ct58GRYno3X4bL7WbCnDxTvbqRlEXtR01RWVcVJSxPmnmeGRxsGS5x5ALUbSV2YSTidkeKK69M7F6RtG2fUlwm64t3nQ0zg1sfgXEHPsx7V63TY/p6upnnT16lZUM7JJGyx57jugEefHyWK9IKFR6us7cbZHpodEMUcvX1Em911f3fueejdDaXr9l8V3q7b1lc+lmkM3XPB3ml4BwDjhgdig+xkWF2tIxfxTmLqXfBxUY6vrsjGc8OW9jPbjtwrm0tbqy0bKjbbhD1NTT0lSx7cg9r8EEcwRg+1UTs2sFJqbVlPaa2aaKCRj3OdCQHei0ntBH3LPo57ny6vtJj1U3Z3vZZ7DXxKlVLOw/spUOu0rpq133fS534km29t042+UPxKKQVXVu+GCmxu9m5nd4b3reOMeCrVTPazpOg0je6Wit89TNHNT9aTOWkg7xHMAcOC+tnOz246tLqt8vwK2sduunc3Jee0MHb58h48lq0c+RTUMEcUd4Utr2/XBGBiNJV12KzJUMpKY36MOxZLf5t8SFIr9l2SaJp2tgqLlWsmcOBfVRtcT4DdWiGxrqdUU8EtZUVFmma8maLdbLE4DLQ7ORg94HsCig0goo75tb81t6Fibohicu3dTu0sne1+JT6v8AoG7Pv6q2ueLb1HwL+1J3ev67d4/vb+9y9mOCrHaxpWh0lf6egt89RNFLSiYmcguBLnDHADh6Kk1Hs1ss2zQ6ldW14rPi99VuBzOr3g0kDG7nHDvUWIzaepkyZrmOFN5W3k+DU9XRVNRIUqGOKGF3u9nTj03lfaRskuo9RUtmhnZA+oLsSPBIbutLuQ8ls9oWjKnR1TSQ1FbDVfCWOc0xtLd3BA4581NdgenLTUmPUctdI240tTJHFTiRoaW9WBktxk+se3sU+2gaOsOqKmklvFxnpHwMc2MRysZvAkE+sD3KGqxvsMQUtvuJZ5b8/wBizQaL/asIc5JdrE7wu+Wrlt3X2nMaKRa6sVJaNYT2WzTS1sQMbYjkPe5zmg7vojBOTjkrE0nsZifRsqdTV00crhvGmpi0dX4OeQcnyHtK1Z+KU1PKhmzIrKLNcX4GBSYFW1dRHIlQ3cDs3fJeJTKK87hsh0xXU8jbHeJ46pg4b0rJmZ7nAAEfasHTux+jlscst+nr6a4RvkaWwvZ1ZDSd1zctJIIwez2KstIKJwa130tmXnojiamaihTyve+WXPiV5s2ttFd9b2y3XGHrqWZ7hIzeLd7DHEcRx5gKSbcdN2XTlfbI7NRfBWzxPMgEjnAkEY9YnvWm2O/OTZ/pH/luUw6Sv6Ts30MvvNXE+dMWLypaieq4XlfLfuJaSnkxaPT5zhWso0k7K69HftKiXXmnq2kuVhoq2ge11PNA0xlv+Hhy8xyx3hcj00RnqI4GuYwyPDA55w0ZOMk9yuPT2gNo2mmyOs1/t0bT6ToOsc5jz/C5mMnlnh5qDSKnlT4IFFMUMSva+x7LlnQ2rqKWZMcuS44Xa+rtW223xPT+ie0fTl/N4tl1+O498ufFJUuaZm9oc1xxnyJx2LSbQdoV9rLVV6dvWmY6B87RnrC8ObhwIcAefEc1ItFbTb9Wakp9P3uw5qJJRE98DHMfEc+s5hzwHbywOKk+2S1Udy0HcJqmNhmo4+vgkPNjgRkA+I4Y/wBgsxTopNXLgrZULeVol1yeWXkbkVNBU4fOmYZPiUKvrQxZrZms1dZc2aro8fIOX+ek91ihXSP+WNB9Xt/MkU16PHyDl/npPdYoV0j/AJY0H1e38yRd0XryPxIsT+68rpD+ZfNP/d4/4B+C551ftO1RPqGq+Lbg6hpIZXMhiYxpyAcZcSDknGe5dDU/93j/AIB+C5Bu/wClqz6d/vFQ6M00qdMmOZCna23Pbcs6b1tRTSZMMmNw3bvZ22Wts6nTOy7UdRqfSMNxrGMbUse6GYsGA5zcekB2ZBHtyontw1td9P1dJaLPKKWSaHr5Zw0OdjeLQ0Z4D1Tk+Sz+j38gXfzsn4NUI6R/yxoPq9v5ki5oqSS8YilOHupvLcSYniFTDo7BPhjajiUN3v55m/2Ka7vN5vMtkvU/wvehMsMxaA5paRlpwOIIOc+Hjw3XSBpYp9Amd7Rv09VG9h7RnLT+P3KuNgHzgs/lZf8A4rO28/NzVfTxe8FJWSYJGMylKVk3Ds62K+G1M2r0bnufFrNKJXebyV0c4K0+jla4KrUVfdJWhz6GFrYs/wCF0mQXeeGuH+Yqt6S23Gsp5amkoKqoghGZZIoXOazzIGArM6N9whgvlztsjw2SqhZJGCfWLCcgeOHZ9hXosaif2GbqPO3xV/I8fozLhWKyHNWTbtfjZ287GLt31TW1upJtPwTvjoKMNEjGnAlkIBJPeBkADwJVe2i5V1ouEVfbqmSmqIjlr2HHsPePA8Cpvt3sNVbtZTXXq3GjuAa9kgHAPDQHMJ7+GfI+BUCpaeeqqY6amifNNK4MjjY3LnE8gAu8LgkfYYFAlqtZ9d9yPHZlV/VJrmN6yiy6X7tvC1jqOhu4v2zo3fcDHVNve57Rya/dIcB4ZBVJbB/nHpPoZfcKuiz2mSxbMm2qYgzQW6QS4OQHlrnOAPdklUvsH+cek+hl9wrzeHqBUtZ2fo526Z2PZ4w5jr8Nc30sr9bw38zddIuN0ur7XEwZc+jDW+ZkcrE1fXN0Hs13ba1olpomU1MS0Y3zw3yO0+s7xKrzpEyuh1japm+tHSBw8xI4qwdolA7WOzZ0lqBlkljjrKZo5vxx3fPBIx3riZZ09EpnoXz4bd/n5ksnWVZiUUn/AG2Wrx2PZ428bHN1ZU1FZVSVVXPJPPI7efJI4uc495JVu9H7VVbLXS6arZnzQdUZaUvOTGWkZYPAg58MeKp17XMeWPaWuacEEYIKtbo8WGqlvc+oJY3MpIInQxOIx1kjsZx3gAHPmF6LG4ZP2GPX3LLruseN0YmVH9Vl9k3dvvdN9/raY/SP+WNB9Xt/MkU+tfzEH6ll9xygPSP+WNB9Xt/MkU+tfzEH6ll9xywaj1dS+0vieso/XFf7L+BUexf5y7R/FL+U9SvpK/pSzfQSe8FFNi/zl2jzl/KepZ0lQfjOzHBx1MvH/M1alR67ley/1GHR/dif7a/Qaro+2qKu1lLXTNDm0FOZGAjPpuO6D7Bve3C2PSA1RXOvI01SzvhpIYmvqWsOOte4ZAPe0DHDvJ7gsLo73GKl1fU0Erg01tMRH4vYd7H+nePsXp0g7DV02pm35sTnUdZGxjpAODJGjG6e7IAI7+Pcoo1DFjdp3/Hu9fq5NLccOjDdPtcfftw+tXwK3t9bV2+sjrKGokp6iI7zJI3YIK6g0XfXaj0NT3aRobNJA9swHLfblriPAkZ9q5ZijfLKyKJjnyPcGta0ZLieQA7SuoNn1ln0/s+pbdVDFSIXyTN/Zc/Lt32ZA9i50ohldlA36V8um/4Emgkc/t5sK/16ufC91bxtcorY785Nn+kf+W5TDpK/pOzfQy+81Q/Y785Nn+kf+W5TDpK/pOzfQy+81T1HrqV7L/UVKP7s1Htr9JUSuHZ/tdio7fDbNSxTP6loZHWRDec5o5b47SB2jn2jtUR2Q6Crtf6pbbYHOgoYAJa6pH6qPPIZ5uPIDzPIFX9tN2D6du1mjOlIIrRcqWIMjGT1VQAOUnbvfv8APvz2dYvU0EUcNNU7eK/D/P8AJn4JHiFLrVFI7cn+Lw5fwaZ20/QzYuu+OQTj1RTS73l6qrXantNZqGgdZbLDLDQvcDPNLwfLg5DQOxucHvOOzjmB6jsV207dZbZeqGajqozxZIOY72nk4eI4LWrqiwGjkRqdA3FvV2rdckWcR0txGrlRSI0oE8nZNPpm2W9se11pzTmlZLfdqqWGc1T5AGwucC0taBxA8Coztm1HatTakpay0SvlhipGxOc6Ms9LfceR8CFB0VyVhUmXVOqTes79M/AoT8eqZ1DDQxJaitud8vH4HR8O1fRTYWNNwqAQ0DBpX5/Bc73CVk1fUTR53JJXObkccEkheCJQYVJoHE5Tfe4/wMWx6pxWGCGektW9rJ77c3wLg2Qa705p3SbrddaqWGo+Evkw2FzgWkNxxA8FF9s2o7VqbUlLWWiV8sMVI2JznRlnpb7jyPgQoOi+SsKkyqp1Sb1nfpn4Cfj9TPoYaGJLUVtzvl4/Al+yS+27T2r23G6SvipxA9m81hdxOMcBxU32ra/0zf8ARs9ttlXNLUvljc1pgc0YDsniQqy0vpu6aiq+qoID1TTiWd3COPzPf4DirV/q4sbNOvtwaXVbhkVrh6Yf347G/u93jxVOvlUaq4J8xvXVsly4m5gUvFqjDplNTwwqW084r3batZZ+drI+Nl+0PS1l0TDbrhI+kqqXf3mNhLuvJcSCCBjPEDjjl3Kpxd56XUz73as0cjal08Ab+rBcSG9xGDjHIhY12oKm13Ge31jNyeF264A5HeCPAjBWKr9Nh0iVHMmwZ9ptvmvrMwK7F6ufLlU81KHsclZWd1lnzVt1i+7JtW0terYKTU9M2lkcMSskhM0D/EcCfYRw7yvObW+zXTLJKjT1vgqK0tO78Gpiw+Re4DA8s+SohFS/t6lUTs4lC/w3y+fmaf8AeFc4VrQwOJbInD3l8PIvWh2q2Sr0dNHeKp7LpNDM18UVO7dBcXbjQeWMFoyT5qtNlV6t+n9Z09yucj46ZkcjXOawuIJaQOA4qKorUnCaeTLmS4L2j28umRQqNIKuomyZ0yzilbNuezbnns5E72z6ktOpr9R1VomfLFFS9W9zoyz0t5x7fNZWy7aTLpiAWq6RSVVs3iYyw+nAScnAPNpPHHDtKrpXjs709orV2hGxC3U8Vyji6ipkYT1scmOEnPt4O7uY7CquIS6WjooZM2FxQLLmue4v4TOrsRxOOokTIYJrV7bny3+fXcZ9fqjZLc3fGNe2hmqMZd1lC8yE9x9Hj96+tKbQYL/rajsVipBS2mKGRzi6MNMmG8AGj1Gg+0+Crm67JtY0lW6Klo4q+Lew2WKZjQR3kOIIVibItAz6VdUXq9ywtrHxFjY2vy2BmcuLncsnA5chnjx4Y1VIw2TTRRQzXG7WhTd7X5bvH8z0lBVY1U1sMEyQpUN044lC1dLPa73vy/Ih3SP+WNB9Xt/MkW2odfaZi2UmwPqpxX/Fj6fq+odjfLSAM8sZPNQXavqCLUms6mspXb1JC0U9O79prc+l5ElxHgQootunwyGdRyZc66cNn48zzFXjkdPiVTNprNR3hz4cVnyNhp261FkvlJdqUAy00oeGnk4drT4EZHtV2SbStn19oYm32icXN9Lqamk60Md24IB+3gqDRWq3C5FZEo47qJb07MoYZjtVh0EUuXZwxbVErokus7paxraS6aTApKWN0b6cxR9Xuva0ZIb2cQVaWmtrWn7pbRR6ppxTTOaGykwmWCXxwASPIg+aohFzU4TT1MqGXMveHY75+87otIKuinxzZVrRu7ht3fdu95fEustl+nS+sslBTVFbg7nwWkLTnu3nAbo8vsX7p/a1ZKixyuv1S+CukfJiGKnc5rGEndaCOfDHE9qoZFVej1LFDaNxN8W8+mzYX4dMK6CO8uGGGHPupWWe/bt8SQ7ObpR2XWltudwe5lNA9xkc1pcRljgOA8SFIdteqbNqeutstnnkmbTxPbIXRFmCSMc/JV6i0Y6GXHUw1LvrQq3Lf8zGl4pOl0UdEktSJ3fG+XPlwN7ojVt80be2XaxVZgmA3ZGOGY5mdrXt7R945ggrrbZdtY09rqmZTh7bfeQ3MtFK71j2mN3+MeHMdo7VxYvqKR8UjZYnuZIwhzXNOC0jkQewqtiWESa5XeUXH58T5Q4lNo3lnDwO8dYaYsWqbeaG+26GsiGdwuGHxk9rXDi0+SoTWvR5rYXyVGk7mypi5tpaw7sg8A8cD7QPNajQO3rUdmbHR6hj+O6NvDrXO3aho/i5P/zcfFXZpXapojUjY20t5ipKl/8A01Z/YvB7uPon2ErzSk4nhT7mcPLNe7d5HpFMw7E138ovc/38zlLUGitV2CQtu1gr6do/WdUXxnye3LT9qj678kc10W80hwPEEHgVHbtZLLWuLqy0W+pceZlpmPJ+0K3L0oaVpkv3P6/M+LRJTX/imW6r4/scSr6Yx8jwxjXOceQAySuu5NIaUY/fZpqzh3eKKP8A2XvS2+gouFHRU1MP/FE1n4BdR6Vy0u7LfvLcnQObG+/OSXJX+KOXrLofVN2LTTWeoZGf1s46puO/LsZ9mVYWm9klJSubPfqv4W8YPUQ5bH7Xcz7MK2a+aGnidLPLHFG3m97g0D2lQHUu0vTVsDmU1QblOOTKfi32vPD7MqGHFq6uerJhsuXz/g15ejmDYSu0q49Z/wDZ5eEO/wAySQUtNRUraakgip4IxhrI2hrQPJV/rraHS24SUNldHVVnFrpuccX/ACP3fgoNqzXl8v4fA6QUdG7h1EJI3h+87m77h4KKLVosH1Xrz3d8PmZGMaZa0LkUC1Vs1vkt3XyR61dRPV1MlTUyvmmkdvPe85LivJEW8lbJHgW3E7vaEREPgREQBZlnulxtFa2ttlZNSVDeAfG7GR3HvHgVhovkUKiVoldHUEcUESihdmixKfbFq+KMNeLdOcevJTkE/wClwH3LSao19qfUVOaWur+rpXetBA3q2O8+0+RKiyKnLw2klxa8EtJ9DRnY1iE6X2cydE4Xuv8AmERFdMwIiIAiIgCIiAIiIAiIgCIiA2tl1JqCy4+Kb1X0Tf2YZ3NafNucFSGPattAjZujUcrh+/TxOP2lqhKKCZSyJrvHAn1SZZlVlRJVpcxro2iau2qa9dzv5/8AVh/4LGqto+tqlpEmoKgA/wDbYyP3WhRNFGqClWalQ+5fIneLVzVnPj/9P5mVcLhX3CXra+tqap/7U0pefvKxURWlCoVZFGKKKN3id2ERF9OQiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiID//2Q==" style="height:30px;width:30px;border-radius:6px;object-fit:cover;flex-shrink:0"/><div class="tbrand">Sim Digital RS</div><div style="font-size:10px;color:var(--muted);margin-left:2px">· Claudette</div><div class="tsep">·</div><div class="tpage" id="tpage">Performance</div></div>
+    <div style="display:flex;gap:2px">
+      <button class="nav-tab active" id="ntab-perf" onclick="setPage('perf')">Performance</button>
+      <button class="nav-tab" id="ntab-liq" onclick="setPage('liq')">Liquidez</button>
+    </div>
+    <div class="tr2">
+      <div class="uchip"><div class="uav" id="tav"></div><div class="uname" id="tnm"></div></div>
+      <span class="ctag" id="tca"></span>
+      <button class="outbtn" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+
+  <div id="page-perf">
+  <div class="main" style="padding-top:1.5rem">
+
+    <div class="upbar" style="flex-direction:column;gap:12px">
+
+      <!-- UPLOADS: Performance + Liquidez lado a lado -->
+      <div style="display:flex;gap:16px;width:100%;flex-wrap:wrap;align-items:flex-start">
+
+        <!-- Performance -->
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:240px">
+          <div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Planilha de Vendas</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label class="uplbl" style="font-size:11px;padding:6px 12px">
+              <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Carregar (.xlsx)
+              <input type="file" id="fi" accept=".xlsx,.xls" onchange="handleUpload(event)"/>
+            </label>
+            <div>
+              <div class="upst" id="ust">Não carregada</div>
+              <div class="updt" id="udt"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="width:0.5px;background:var(--border);align-self:stretch"></div>
+
+        <!-- Liquidez -->
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:240px">
+          <div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Planilha de Liquidez</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label class="uplbl" style="font-size:11px;padding:6px 12px">
+              <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Carregar (.xlsx)
+              <input type="file" id="fiLiqPerf" accept=".xlsx,.xls" onchange="handleUploadLiq(event)"/>
+            </label>
+            <div>
+              <div class="upst" id="ustLiqPerf">Não carregada</div>
+              <div class="updt" id="udtLiqPerf"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- N8N -->
+      <div style="width:100%;border-top:0.5px solid var(--border);padding-top:10px">
+        <div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          N8N — Carregamento automático via OneDrive
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Webhook · Planilha de Vendas</div>
+            <div class="od-row" style="margin-top:0">
+              <input class="od-input" id="n8nUrlVendas" placeholder="https://…/webhook/vendas"/>
+              <button class="od-btn" onclick="carregarN8NVendas()">
+                <svg width="11" height="11" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Conectar
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Webhook · Planilha de Liquidez</div>
+            <div class="od-row" style="margin-top:0">
+              <input class="od-input" id="n8nUrlLiquidez" placeholder="https://…/webhook/liquidez"/>
+              <button class="od-btn" onclick="carregarN8NLiquidez()">
+                <svg width="11" height="11" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Conectar
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="dbg" id="dbg"></div>
+
+        <!-- TELA VAZIA - aparece quando planilha não foi carregada -->
+    <div id="semPlanilha" class="hidden">
+      <div style="text-align:center;padding:4rem 2rem;background:var(--white);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:1rem">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+          <svg width="22" height="22" fill="none" stroke="#185FA5" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:8px">Nenhuma planilha carregada</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">Carregue a planilha de vendas (.xlsx) usando o botão acima<br>para visualizar os dados do painel.</div>
+      </div>
+    </div>
+
+    <!-- TOGGLE GESTOR/VENDEDOR -->
+    <div class="vtog hidden" id="gtog">
+      <button class="vtbtn active" id="beq" onclick="setGV('eq')">Visão da Equipe</button>
+      <button class="vtbtn" id="bme" onclick="setGV('me')">Meus Dados</button>
+    </div>
+
+    <!-- ══ VENDEDOR VIEW ══ -->
+    <div id="vv">
+      <div class="sl">Resumo do Mês</div>
+      <div class="mts">
+        <div class="mc"><div class="mlb">Serviços Vendidos</div><div class="mv" id="vv1">—</div><div class="ms nt" id="vs1"></div></div>
+        <div class="mc"><div class="mlb">Dias Úteis Trabalhados</div><div class="mv" id="vv2">—</div><div class="ms nt" id="vs2"></div></div>
+        <div class="mc"><div class="mlb">Produtividade/Dia</div><div class="mv" id="vv3">—</div><div class="ms" id="vs3"></div></div>
+        <div class="mc"><div class="mlb">Cancelamentos</div><div class="mv" id="vv4">—</div><div class="ms" id="vs4"></div></div>
+      </div>
+            <div class="card">
+        <div class="sl">Progresso dos Indicadores</div>
+        <div class="gr"><div class="gh"><span class="gn">Serviços Vendidos</span><span class="gns" id="g1n"></span></div><div class="bt"><div class="bf bbl" id="g1b" style="width:0%"></div></div><div class="gf"><span id="g1p"></span><span id="g1r"></span></div></div>
+        <div class="gr"><div class="gh"><span class="gn">Serviços Habilitados</span><span class="gns" id="g2n"></span></div><div class="bt"><div class="bf bam" id="g2b" style="width:0%"></div></div><div class="gf"><span id="g2p"></span><span></span></div></div>
+        <div class="gr"><div class="gh"><span class="gn">Aguardando Instalação</span><span class="gns" id="g3n"></span></div><div class="bt"><div class="bf bgr" id="g3b" style="width:0%"></div></div><div class="gf"><span id="g3p"></span><span>Em fila</span></div></div>
+        <div class="gr"><div class="gh"><span class="gn">Cancelamentos</span><span class="gns" id="g4n"></span></div><div class="bt"><div class="bf brd" id="g4b" style="width:0%"></div></div><div class="gf"><span id="g4p"></span><span id="g4s"></span></div></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tb active" id="t1" onclick="setTab(1)">Ranking</button>
+        <button class="tb" id="t2" onclick="setTab(2)">Últimas Vendas</button>
+        <button class="tb" id="t3" onclick="setTab(3)">Detalhe Completo</button>
+      </div>
+      <div class="card" id="tabR" style="margin-bottom:0"><div class="sl">Ranking da Equipe · Produtividade/Dia</div><ul class="rl" id="rl"></ul></div>
+      <div class="card hidden" id="tabU" style="margin-bottom:0">
+        <div class="sl">Últimas Vendas</div>
+        <table class="tbl"><thead><tr><th>Cliente / Razão Social</th><th>Serviço</th><th>Valor c/ Pacote</th><th>Bairro</th><th>Status</th><th>Data Venda</th></tr></thead><tbody id="ub"></tbody></table>
+      </div>
+      <div class="card hidden" id="tabD" style="margin-bottom:0">
+        <div class="sl">Todas as Vendas do Mês</div>
+        <div class="dw"><table class="dt"><thead><tr><th>Cliente / Razão Social</th><th>CPF/CNPJ</th><th>Telefone</th><th>Serviço</th><th>Valor</th><th>Valor c/ Pacote</th><th>Status</th><th>Endereço</th><th>Bairro</th><th>Cidade</th><th>Data Venda</th><th>Data Habilitação</th></tr></thead><tbody id="db"></tbody></table></div>
+      </div>
+      <div class="card" style="margin-top:1rem"><div class="sl">Serviços Vendidos por Semana</div><div class="chw"><canvas id="cs"></canvas></div></div>
+    </div>
+
+    <!-- ══ GESTOR VIEW ══ -->
+    <div id="gv" class="hidden">
+
+      <!-- AVISO MÊS -->
+      <div id="avisoMes" style="display:none;background:#E6F1FB;border:0.5px solid #85B7EB;border-radius:var(--rs);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#0C447C"></div>
+
+      <!-- CONFIG DIAS ÚTEIS -->
+      <div class="dias-config" id="diasConfig">
+        <div style="font-size:11px;font-weight:500;color:var(--muted);width:100%;padding-bottom:8px;border-bottom:0.5px solid var(--border);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">
+          Dias úteis do mês por canal — sábado conta como 0,5
+          <span style="font-weight:400;color:var(--muted);font-size:10px;margin-left:6px">salvo automaticamente durante o mês vigente</span>
+        </div>
+        <div id="diasCanaisWrap" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center"></div>
+      </div>
+
+      <!-- FILTRO DE CANAL -->
+      <div class="filtro-bar">
+        <span class="filtro-label">Canal de Vendas:</span>
+        <select class="filtro-select" id="canalFiltro" onchange="renderGestor()">
+          <option value="">Todos os canais</option>
+        </select>
+        <span class="filtro-label" style="margin-left:4px">Vendedor:</span>
+        <select class="filtro-select" id="vendedorFiltro" onchange="renderGestor()">
+          <option value="">Todos os vendedores</option>
+        </select>
+        <span class="filtro-label" style="margin-left:4px">Mês:</span>
+        <select class="filtro-select" id="mesFiltro" onchange="onMesFiltroChange()">
+          <option value="">Mês atual</option>
+        </select>
+        <span class="filtro-count" id="filtroCount"></span>
+      </div>
+
+      <!-- FILTRO ATIVO (cruzamento) -->
+      <div class="filtro-ativo" id="filtroAtivo">
+        Filtrando por: <span id="filtroAtivoLabel"></span>
+        <button onclick="limparFiltroAtivo()" title="Limpar filtro">✕</button>
+      </div>
+
+      <div class="sl">Resumo da Equipe</div>
+      <div class="mts" style="grid-template-columns:repeat(7,minmax(0,1fr))">
+        <div class="mc"><div class="mlb">Serviços Vendidos</div><div class="mv" id="gm1">—</div><div class="ms nt" id="gs1"></div></div>
+        <div class="mc"><div class="mlb">Serviços Habilitados</div><div class="mv" id="gm2">—</div><div class="ms up2" id="gs2"></div></div>
+        <div class="mc"><div class="mlb">Aguardando Instalação</div><div class="mv" id="gm3">—</div><div class="ms wa" id="gs3"></div></div>
+        <div class="mc"><div class="mlb">Cancelamentos</div><div class="mv" id="gm4">—</div><div class="ms dg" id="gs4"></div></div>
+        <div class="mc"><div class="mlb">Previsão da Equipe</div><div class="mv" id="gm5">—</div><div class="ms nt" id="gs5"></div></div>
+        <div class="mc"><div class="mlb">Ticket Médio</div><div class="mv" id="gm7">—</div><div class="ms nt" id="gs7"></div></div>
+        <div class="mc"><div class="mlb">Receita Total</div><div class="mv" id="gm6">—</div><div class="ms nt" id="gs6"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="sl">Vendas por Dia</div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="chartLinha"></canvas></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="sl">Top 5 Planos Mais Vendidos</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:center">
+          <div style="position:relative;height:260px"><canvas id="chartPizza"></canvas></div>
+          <div id="pizzaLegenda" style="font-size:12px;display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="sl" style="margin-bottom:0">Desempenho por Vendedor</div>
+          <div style="display:flex;gap:12px" id="canalLegenda"></div>
+        </div>
+        <div class="gw"><table class="gt"><thead><tr><th>#</th><th>Vendedor</th><th>Canal de Vendas</th><th>Dias Úteis</th><th>Serviços Vendidos</th><th>Produtividade/Dia</th><th>Previsão do Mês</th><th>Serviços Habilitados</th><th>Aguardando Instalação</th><th>Cancelamentos</th></tr></thead><tbody id="gb"></tbody></table></div>
+      </div>
+
+      <div class="card"><div class="sl">Serviços por Semana · Equipe</div><div class="chw" style="height:180px"><canvas id="cg"></canvas></div></div>
+
+      <div class="card">
+        <div class="sl">Vendas por Cidade</div>
+        <div style="position:relative;width:100%" id="cidadeChartWrap"><canvas id="chartCidade"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="sl">Vendas por Bairro</div>
+        <div style="position:relative;width:100%" id="bairroChartWrap"><canvas id="chartBairro"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="sl">Todas as Vendas da Equipe</div>
+        <div class="dw"><table class="dt"><thead><tr><th>Vendedor</th><th>Canal de Vendas</th><th>Cliente / Razão Social</th><th>CPF/CNPJ</th><th>Telefone</th><th>Serviço</th><th>Valor</th><th>Valor c/ Pacote</th><th>Status</th><th>Bairro</th><th>Cidade</th><th>Data Venda</th><th>Data Habilitação</th></tr></thead><tbody id="gdb"></tbody></table></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// NORMALIZAÇÃO
+// ═══════════════════════════════════════════════
+function norm(s){
+  return String(s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[\s_\-\.\/]+/g,'_')
+    .replace(/^_+|_+$/g,'').trim();
+}
+
+// PAP = canal de campo/externo (pap, robô, bot, mundial, metropolitano sem 'interna')
+// Venda Interna = contém 'interna' ou 'interno'
+// A função é usada para lógica de semáforo de produtividade
+function isPAP(s){
+  const n=norm(s||'');
+  if(n.includes('interna')||n.includes('interno'))return false;
+  return true; // todos os outros canais tratados como PAP para comissão de campo
+}
+function isVendaInterna(s){
+  const n=norm(s||'');
+  return n.includes('interna')||n.includes('interno');
+}
+
+// Badge colorido usando nome original da planilha
+function canalBadge(c){
+  const n=norm(c);
+  // cores específicas por canal
+  if(n.includes('venda_interna')||n.includes('venda interna')||n==='venda_interna')
+    return`<span style="background:#E6F1FB;color:#0C447C;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:500">${c}</span>`;
+  if(n.includes('metropolitana'))
+    return`<span style="background:#FFF0E6;color:#9C2A00;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:500">${c}</span>`;
+  if(n.includes('robo')||n.includes('robô')||n.includes('mundiale'))
+    return`<span style="background:#FFF8E1;color:#B87200;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:500">${c}</span>`;
+  if(n.includes('empresas'))
+    return`<span style="background:#E8E8E8;color:#2C2C2A;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:500">${c}</span>`;
+  // fallback
+  return`<span style="background:var(--amber-light);color:var(--amber-dark);border-radius:999px;padding:2px 8px;font-size:10px;font-weight:500">${c}</span>`;
+}
+
+// ═══════════════════════════════════════════════
+// MAPEAMENTO FLEXÍVEL DE COLUNAS
+// ═══════════════════════════════════════════════
+const COL_VARIANTS={
+  cliente:    ['nome_razaosocial','nome_razao_social','razao_social','cliente','nome','razaosocial'],
+  telefone:   ['telefone_primario','telefone','fone','tel','celular'],
+  canal:      ['canal_de_vendas','canal_vendas','canal','canaldevendas','tipo_canal'],
+  vendedor:   ['vendedor','seller','consultor','nome_vendedor'],
+  servico:    ['servico','servicos','servico_contratado','produto','plano'],
+  valor:      ['valor','vlr','preco'],
+  valor_pac:  ['valor_com_pacote','valor_pacote','valor_total','total','valorcompacote'],
+  status:     ['servico_status','servicostatus','status','situacao','status_servico'],
+  endereco:   ['endereco','logradouro','rua'],
+  numero:     ['numero','num'],
+  bairro:     ['bairro'],
+  cidade:     ['cidade','municipio'],
+  cpf:        ['cpf_cnpj','cpfcnpj','cpf','cnpj','documento'],
+  data_venda: ['data_venda','datavenda','data_da_venda','dt_venda','data_contrato','data'],
+  data_hab:   ['data_habilitacao','datahabilitacao','data_da_habilitacao','dt_habilitacao','data_ativacao'],
+  complemento:['complemento','comp'],
+};
+
+function buildIdx(cols){
+  const idx={};
+  const pairs=cols.map(c=>({orig:c,n:norm(c)}));
+  for(const [key,variants] of Object.entries(COL_VARIANTS)){
+    for(const v of variants){
+      const m=pairs.find(p=>p.n===norm(v));
+      if(m){idx[key]=m.orig;break;}
+    }
+  }
+  return idx;
+}
+
+function col(row,idx,key){
+  if(idx[key]===undefined)return'';
+  const v=row[idx[key]];
+  return(v===undefined||v===null)?'':String(v);
+}
+
+// ═══════════════════════════════════════════════
+// LEITURA DA PLANILHA — detecta linha de cabeçalho
+// ═══════════════════════════════════════════════
+function readBestSheet(wb){
+  let best={rows:[],sheetName:'',headerRowIdx:-1,foundCols:[]};
+  for(const sheetName of wb.SheetNames){
+    const ws=wb.Sheets[sheetName];
+    const raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    if(!raw||!raw.length)continue;
+    let headerIdx=-1;
+    // Procura linha com "vendedor" E algo com "canal"
+    for(let i=0;i<raw.length;i++){
+      const cells=raw[i].map(c=>norm(String(c||'')));
+      if(cells.some(c=>c==='vendedor')&&cells.some(c=>c.includes('canal'))){headerIdx=i;break;}
+    }
+    // Fallback: linha com mais palavras-chave conhecidas
+    if(headerIdx===-1){
+      const kws=['vendedor','canal','servico','status','nome','valor','bairro','data','cpf'];
+      let bestScore=-1;
+      for(let i=0;i<Math.min(15,raw.length);i++){
+        const cells=raw[i].map(c=>norm(String(c||'')));
+        const score=kws.filter(kw=>cells.some(c=>c.includes(kw))).length;
+        if(score>bestScore){bestScore=score;headerIdx=i;}
+      }
+    }
+    if(headerIdx===-1)continue;
+    const headers=raw[headerIdx].map((h,i)=>String(h||'').trim()||'__C'+i);
+    const rows=raw.slice(headerIdx+1)
+      .filter(r=>r.some(v=>v!==''&&v!==null&&v!==undefined))
+      .map(r=>{const obj={};headers.forEach((h,i)=>{obj[h]=r[i]!==undefined?r[i]:''});return obj;});
+    if(rows.length>best.rows.length){
+      best={rows,sheetName,headerRowIdx:headerIdx,foundCols:headers.filter(h=>!h.startsWith('__C'))};
+    }
+  }
+  return best;
+}
+
+// ═══════════════════════════════════════════════
+// USUÁRIOS (gestor fixo + vendedores detectados da planilha)
+// ═══════════════════════════════════════════════
+const USUARIOS_FIXOS=[
+  {usuario:'gestor01',senha:'gestor123',nome:'Gestor',perfil:'gestor',canal:'',ativo:'sim'},
+];
+
+let VENDEDORES_PLANILHA=[];
+
+function todosUsuarios(){return[...USUARIOS_FIXOS,...VENDEDORES_PLANILHA];}
+
+// ═══════════════════════════════════════════════
+// DADOS DEMO
+// ═══════════════════════════════════════════════
+const DEMO=[
+  {'nome_razaosocial':'Maria Silva','telefone_primario':'(51) 99999-1111','Canal de Vendas':'PAP Metropolitana','Vendedor':'Rafael Oliveira','servico':'Internet 200mb','valor':89.90,'valor_com_pacote':99.90,'servico_status':'Ativo','endereco':'Rua das Flores','numero':'123','bairro':'Centro','cidade':'Porto Alegre','cpf_cnpj':'123.456.789-00','data_venda':'03/03/2026','data_habilitacao':'05/03/2026','complemento':''},
+  {'nome_razaosocial':'João Pereira','telefone_primario':'(51) 99999-2222','Canal de Vendas':'PAP Metropolitana','Vendedor':'Rafael Oliveira','servico':'Internet 400mb','valor':129.90,'valor_com_pacote':149.90,'servico_status':'Aguardando Instalação','endereco':'Av. Brasil','numero':'456','bairro':'Floresta','cidade':'Porto Alegre','cpf_cnpj':'987.654.321-00','data_venda':'05/03/2026','data_habilitacao':'','complemento':'Apto 3'},
+  {'nome_razaosocial':'Antônio Costa','telefone_primario':'(51) 99999-3333','Canal de Vendas':'PAP Metropolitana','Vendedor':'Rafael Oliveira','servico':'Internet Giga','valor':199.90,'valor_com_pacote':219.90,'servico_status':'Habilitado','endereco':'Rua XV','numero':'789','bairro':'Bela Vista','cidade':'Porto Alegre','cpf_cnpj':'111.222.333-44','data_venda':'07/03/2026','data_habilitacao':'10/03/2026','complemento':''},
+  {'nome_razaosocial':'Roberta Alves','telefone_primario':'(51) 99999-4444','Canal de Vendas':'PAP Metropolitana','Vendedor':'Rafael Oliveira','servico':'Internet 200mb','valor':89.90,'valor_com_pacote':99.90,'servico_status':'Cancelado','endereco':'Rua Garibaldi','numero':'12','bairro':'Moinhos','cidade':'Porto Alegre','cpf_cnpj':'555.666.777-88','data_venda':'10/03/2026','data_habilitacao':'','complemento':''},
+  {'nome_razaosocial':'Sandra Dias','telefone_primario':'(51) 99999-5555','Canal de Vendas':'PAP Metropolitana','Vendedor':'Carlos Mendes','servico':'Internet Giga','valor':199.90,'valor_com_pacote':219.90,'servico_status':'Ativo','endereco':'Av. Ipiranga','numero':'1000','bairro':'Azenha','cidade':'Porto Alegre','cpf_cnpj':'333.444.555-66','data_venda':'01/03/2026','data_habilitacao':'03/03/2026','complemento':''},
+  {'nome_razaosocial':'Fernando N.','telefone_primario':'(51) 99999-8888','Canal de Vendas':'PAP Metropolitana','Vendedor':'Carlos Mendes','servico':'Internet 400mb','valor':129.90,'valor_com_pacote':149.90,'servico_status':'Habilitado','endereco':'Rua Cel. Genuíno','numero':'333','bairro':'Centro','cidade':'Porto Alegre','cpf_cnpj':'666.777.888-99','data_venda':'04/03/2026','data_habilitacao':'07/03/2026','complemento':''},
+  {'nome_razaosocial':'Beatriz Freitas','telefone_primario':'(51) 98888-1111','Canal de Vendas':'Venda Interna','Vendedor':'Julia Pereira','servico':'Internet 200mb','valor':89.90,'valor_com_pacote':99.90,'servico_status':'Habilitado','endereco':'Av. Farrapos','numero':'100','bairro':'Farrapos','cidade':'Porto Alegre','cpf_cnpj':'888.999.000-11','data_venda':'02/03/2026','data_habilitacao':'05/03/2026','complemento':''},
+  {'nome_razaosocial':'Nelson Barbosa','telefone_primario':'(51) 98888-2222','Canal de Vendas':'Venda Interna','Vendedor':'Julia Pereira','servico':'Internet Giga','valor':199.90,'valor_com_pacote':219.90,'servico_status':'Ativo','endereco':'Av. Bento Gonçalves','numero':'500','bairro':'Partenon','cidade':'Porto Alegre','cpf_cnpj':'999.000.111-22','data_venda':'08/03/2026','data_habilitacao':'11/03/2026','complemento':''},
+  {'nome_razaosocial':'Olivia Vieira','telefone_primario':'(51) 98888-3333','Canal de Vendas':'Venda Interna','Vendedor':'Julia Pereira','servico':'Internet 400mb','valor':129.90,'valor_com_pacote':149.90,'servico_status':'Cancelado','endereco':'Rua Mathias Velho','numero':'22','bairro':'Mathias Velho','cidade':'Canoas','cpf_cnpj':'000.111.222-33','data_venda':'12/03/2026','data_habilitacao':'','complemento':''},
+  {'nome_razaosocial':'Isabela Martins','telefone_primario':'(51) 98888-4444','Canal de Vendas':'Venda Interna','Vendedor':'Lucas Borges','servico':'Internet 200mb','valor':89.90,'valor_com_pacote':99.90,'servico_status':'Ativo','endereco':'Rua Assis Brasil','numero':'900','bairro':'Sarandi','cidade':'Porto Alegre','cpf_cnpj':'111.222.333-55','data_venda':'01/03/2026','data_habilitacao':'03/03/2026','complemento':''},
+];
+
+let VENDAS=[], CIDX={};
+let CU=null, CS=null, CG=null;
+let USAR_FILTRO_MES=true;
+
+// ═══════════════════════════════════════════════
+// MAPA FIXO: Vendedor → Canal de Vendas
+// Atualizado automaticamente a partir da planilha
+// ═══════════════════════════════════════════════
+const VENDEDOR_CANAL_MAP={
+  'Ademir Silva Fogaça':                    'PAP Metropolitana',
+  'Alexandre Chaves':                       'Sim Empresas',
+  'Amanda Quaresma':                        'Venda Interna',
+  'Arlete Lemos Luza de Bastos':            'Venda Interna',
+  'Bot Vendas Mundiale':                    'Bot Mundiale',
+  'Leandro Gonçalves Romero':               'PAP Metropolitana',
+  'Paula Vitoria Elias Vieira':             'Sim Empresas | Venda Externa',
+  'Priscila Santos':                        'Venda Interna',
+  'Sergio Evandro Reinoso de Oliveira':     'Sim Empresas | Venda Externa',
+  'Thuany Rafaelli da Rosa Valiente':       'Sim Empresas',
+};
+
+// Retorna o canal correto para um vendedor, com fallback ao valor da planilha
+function getCanalVendedor(nomeVendedor, canalPlanilha){
+  if(canalPlanilha&&canalPlanilha.trim())return canalPlanilha.trim();
+  return VENDEDOR_CANAL_MAP[nomeVendedor.trim()]||'';
+}
+
+let PLANILHA_CARREGADA=false;
+let LIQ_CARREGADA=false;
+// ── DIAS ÚTEIS POR CANAL (localStorage) ─────────────────────
+const DIAS_TRAB={};
+
+function getMesStorage(){
+  const n=new Date();
+  return String(n.getMonth()+1).padStart(2,'0')+'/'+n.getFullYear();
+}
+function storageKey(){return'simdigital_diascanais_'+getMesStorage();}
+
+function getDiasCanal(canal){
+  try{
+    const data=JSON.parse(localStorage.getItem(storageKey())||'{}');
+    return data[canal]!==undefined?parseFloat(data[canal]):22;
+  }catch(e){return 22;}
+}
+function setDiasCanal(canal,valor){
+  try{
+    const data=JSON.parse(localStorage.getItem(storageKey())||'{}');
+    data[canal]=valor;
+    localStorage.setItem(storageKey(),JSON.stringify(data));
+  }catch(e){}
+}
+function renderDiasConfig(canais){
+  const wrap=document.getElementById('diasCanaisWrap');
+  if(!wrap||!canais.length)return;
+  wrap.innerHTML=canais.map((c,i)=>{
+    const val=getDiasCanal(c);
+    const safeId='dc_'+i;
+    return`<div class="dias-group">
+      <label style="font-size:12px;color:var(--muted);white-space:nowrap">${c}:</label>
+      <input type="number" class="dias-input" id="${safeId}" data-canal="${i}" min="0.5" max="31" step="0.5" value="${val}"
+        onchange="onDiasCanalChange(${i},this.value)"
+        title="Dias úteis — sábado = 0,5"/>
+    </div>`;
+  }).join('<div class="dias-sep"></div>');
+  // Guarda mapeamento index -> canal
+  window._canaisDias=canais;
+}
+function onDiasCanalChange(idx,val){
+  const canais=window._canaisDias||[];
+  const canal=canais[idx];
+  if(canal)setDiasCanal(canal,Math.max(0.5,parseFloat(val)||0.5));
+  renderGestor();
+}
+
+// Estado do filtro cruzado dos gráficos
+const FILTRO_DASH={semana:null,cidade:null,bairro:null};
+
+function setFiltroDash(tipo,valor){
+  // Toggle: clicou no mesmo → limpa
+  if(FILTRO_DASH[tipo]===valor){FILTRO_DASH[tipo]=null;}
+  else{FILTRO_DASH[tipo]=valor;}
+  atualizarChipFiltro();
+  renderGestor();
+}
+
+function limparFiltroAtivo(){
+  FILTRO_DASH.semana=null;FILTRO_DASH.cidade=null;FILTRO_DASH.bairro=null;
+  atualizarChipFiltro();
+  renderGestor();
+}
+
+function atualizarChipFiltro(){
+  const partes=[];
+  if(FILTRO_DASH.semana!==null)partes.push(['Sem 1','Sem 2','Sem 3','Sem 4'][FILTRO_DASH.semana]);
+  if(FILTRO_DASH.cidade)partes.push(FILTRO_DASH.cidade);
+  if(FILTRO_DASH.bairro)partes.push(FILTRO_DASH.bairro);
+  const chip=document.getElementById('filtroAtivo');
+  const lbl=document.getElementById('filtroAtivoLabel');
+  if(!chip||!lbl)return;
+  if(partes.length){
+    chip.classList.add('show');
+    lbl.textContent=partes.join(' · ');
+  }else{
+    chip.classList.remove('show');
+  }
+}
+
+// Aplica filtros cruzados sobre um array de registros
+function aplicarFiltroDash(rows){
+  return rows.filter(r=>{
+    if(FILTRO_DASH.semana!==null&&semI(r)!==FILTRO_DASH.semana)return false;
+    if(FILTRO_DASH.cidade&&(col(r,CIDX,'cidade')||'').trim()!==FILTRO_DASH.cidade)return false;
+    if(FILTRO_DASH.bairro&&(col(r,CIDX,'bairro')||'').trim()!==FILTRO_DASH.bairro)return false;
+    return true;
+  });
+}
+
+// Vendedores detectados automaticamente ao carregar planilha
+VENDEDORES_PLANILHA=[];
+
+// ═══════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════
+['iu','ip'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()}));
+
+function doLogin(){
+  const u=document.getElementById('iu').value.trim().toLowerCase();
+  const p=document.getElementById('ip').value;
+  const todos=todosUsuarios();
+  // Tenta por usuario exato
+  let found=todos.find(x=>x.usuario.toLowerCase()===u&&x.senha===p&&x.ativo==='sim');
+  // Tenta pelo nome completo (vendedor digita o próprio nome como login)
+  if(!found)found=todos.find(x=>norm(x.nome)===norm(u)&&(x.senha===p||p==='sim123')&&x.ativo==='sim');
+  if(!found){document.getElementById('le').style.display='block';return}
+  CU=found;
+  document.getElementById('le').style.display='none';
+  document.getElementById('ls').style.display='none';
+  document.getElementById('as').style.display='block';
+  setupUI();
+}
+
+function doLogout(){
+  CU=null;
+  document.getElementById('ls').style.display='flex';
+  document.getElementById('as').style.display='none';
+  document.getElementById('iu').value='';document.getElementById('ip').value='';
+}
+// ═══════════════════════════════════════════════
+// N8N WEBHOOK — dois webhooks independentes
+// ═══════════════════════════════════════════════
+const N8N_KEY_VENDAS='simdigital_n8n_vendas';
+const N8N_KEY_LIQUIDEZ='simdigital_n8n_liquidez';
+
+function salvarURL(key,v){try{localStorage.setItem(key,v);}catch(e){}}
+function recuperarURL(key){try{return localStorage.getItem(key)||'';}catch(e){return'';}}
+
+function normN8N(dados){
+  if(!dados)return[];
+  if(Array.isArray(dados)){
+    const first=dados[0];
+    if(first&&first.json!==undefined)return dados.map(i=>i.json||i);
+    return dados;
+  }
+  if(typeof dados==='object'){
+    for(const k of Object.keys(dados)){if(Array.isArray(dados[k]))return dados[k];}
+    return[dados];
+  }
+  return[];
+}
+
+async function carregarN8NVendas(silencioso=false){
+  const input=document.getElementById('n8nUrlVendas');
+  const url=(input?input.value.trim():'')||recuperarURL(N8N_KEY_VENDAS);
+  if(!url){if(!silencioso)setUS('Cole a URL do webhook de Vendas.','err');return;}
+  salvarURL(N8N_KEY_VENDAS,url);
+  if(input)input.value=url;
+  if(!silencioso)setUS('Buscando dados de vendas no N8N…','');
+  try{
+    const resp=await fetch(url,{headers:{'Accept':'application/json'}});
+    if(!resp.ok)throw new Error(`HTTP ${resp.status} — verifique se o workflow de Vendas está ativo.`);
+    const rows=normN8N(await resp.json());
+    if(!rows.length)throw new Error('Nenhum dado retornado. Verifique o node Respond to Webhook.');
+    const foundCols=Object.keys(rows[0]);
+    const newIdx=buildIdx(foundCols);
+    const required={vendedor:'Vendedor',canal:'Canal de Vendas',status:'servico_status',data_venda:'data_venda'};
+    const missing=Object.entries(required).filter(([k])=>!newIdx[k]).map(([,v])=>v);
+    if(missing.length){setUS(`Colunas não encontradas: ${missing.join(', ')}.`,'err');return;}
+    const vendMap={};
+    rows.forEach(r=>{
+      const nome=String(r[newIdx.vendedor]||'').trim();
+      const canalPlanilha=String(r[newIdx.canal]||'').trim();
+      const canal=getCanalVendedor(nome,canalPlanilha);
+      if(nome&&!vendMap[nome])vendMap[nome]={usuario:norm(nome).replace(/_/g,'.'),senha:'sim123',nome,canal,perfil:'vendedor',ativo:'sim'};
+    });
+    VENDEDORES_PLANILHA=Object.values(vendMap);
+    VENDAS=rows;CIDX=newIdx;PLANILHA_CARREGADA=true;
+    populateCanalFiltro();
+    const n=new Date();
+    setUS(`N8N — ${rows.length} registros · ${VENDEDORES_PLANILHA.length} vendedores`,'ok');
+    document.getElementById('udt').textContent='atualizado às '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('dbg').classList.remove('show');
+    if(CU)setupUI();
+  }catch(err){setUS('Erro vendas: '+err.message,'err');console.error(err);}
+}
+
+async function carregarN8NLiquidez(silencioso=false){
+  const input=document.getElementById('n8nUrlLiquidez');
+  const url=(input?input.value.trim():'')||recuperarURL(N8N_KEY_LIQUIDEZ);
+  if(!url){if(!silencioso)setUSLiq('Cole a URL do webhook de Liquidez.','err');return;}
+  salvarURL(N8N_KEY_LIQUIDEZ,url);
+  if(input)input.value=url;
+  if(!silencioso)setUSLiq('Buscando dados de liquidez no N8N…','');
+  try{
+    const resp=await fetch(url,{headers:{'Accept':'application/json'}});
+    if(!resp.ok)throw new Error(`HTTP ${resp.status} — verifique se o workflow de Liquidez está ativo.`);
+    const raw=normN8N(await resp.json());
+    if(!raw.length)throw new Error('Nenhum dado retornado pelo N8N de Liquidez.');
+    const foundCols=Object.keys(raw[0]);
+    LIQ_IDX=buildLiqIdx(foundCols);
+    const vendMap={};
+    raw.forEach(r=>{
+      const nome=String(r[LIQ_IDX.vendedor||'']||'').trim();
+      const canalPlanilha=String(r[LIQ_IDX.canal||'']||'').trim();
+      const canal=getCanalVendedor(nome,canalPlanilha);
+      if(nome&&!vendMap[nome])vendMap[nome]={usuario:norm(nome).replace(/_/g,'.'),senha:'sim123',nome,canal,perfil:'vendedor',ativo:'sim'};
+    });
+    if(Object.keys(vendMap).length)VENDEDORES_PLANILHA=Object.values(vendMap);
+    LIQ_DADOS=raw;LIQ_CARREGADA=true;
+    populateLiqFiltros();
+    const n=new Date();
+    setUSLiq(`N8N — ${raw.length} registros`,'ok');
+    setUDTLiq('atualizado às '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+    document.getElementById('semPlanilhaLiq').style.display='none';
+    document.getElementById('liqContent').style.display='';
+    if(CU&&CU.perfil!=='gestor'){
+      const selV=document.getElementById('liqFiltroVend');
+      if(selV)selV.value=CU.nome;
+    }
+    if(CU)renderLiquidez();
+  }catch(err){setUSLiq('Erro liquidez: '+err.message,'err');console.error(err);}
+}
+
+async function atualizarOneDrive(){
+  await carregarN8NVendas(true);
+  await carregarN8NLiquidez(true);
+}
+
+window.addEventListener('load',()=>{
+  const uV=recuperarURL(N8N_KEY_VENDAS);
+  const uL=recuperarURL(N8N_KEY_LIQUIDEZ);
+  const inV=document.getElementById('n8nUrlVendas');
+  const inL=document.getElementById('n8nUrlLiquidez');
+  if(uV&&inV)inV.value=uV;
+  if(uL&&inL)inL.value=uL;
+  if(uV)carregarN8NVendas(true);
+  if(uL)carregarN8NLiquidez(true);
+});
+
+// Processa workbook lido pelo handleUpload
+function processarWorkbook(wb,origem){
+  const result=readBestSheet(wb);
+  const{rows,sheetName,headerRowIdx,foundCols}=result;
+  const dbgEl=document.getElementById('dbg');
+
+  if(!rows.length){
+    dbgEl.classList.add('show');
+    dbgEl.innerHTML=`<b>Não foi possível encontrar os dados.</b> Abas: ${wb.SheetNames.map(s=>`<code>${s}</code>`).join(' ')}`;
+    setUS('Não foi possível ler a planilha.','err');return;
+  }
+  const newIdx=buildIdx(foundCols);
+  const vendMap={};
+  rows.forEach(r=>{
+    const nome=String(r[newIdx.vendedor||'Vendedor']||'').trim();
+    const canalPlanilha=String(r[newIdx.canal||'Canal de Vendas']||'').trim();
+    const canal=getCanalVendedor(nome,canalPlanilha);
+    if(nome&&!vendMap[nome])vendMap[nome]={usuario:norm(nome).replace(/_/g,'.'),senha:'sim123',nome,canal,perfil:'vendedor',ativo:'sim'};
+  });
+  VENDEDORES_PLANILHA=Object.values(vendMap);
+  const required={vendedor:'Vendedor',canal:'Canal de Vendas',status:'servico_status',data_venda:'data_venda'};
+  const missing=Object.entries(required).filter(([k])=>!newIdx[k]).map(([,v])=>v);
+  if(missing.length){setUS(`Colunas não mapeadas: ${missing.join(', ')}.`,'err');return;}
+  VENDAS=rows;CIDX=newIdx;
+  PLANILHA_CARREGADA=true;
+  populateCanalFiltro();
+  const n=new Date();
+  setUS(`${origem} — ${rows.length} registros · ${VENDEDORES_PLANILHA.length} vendedores`,'ok');
+  document.getElementById('udt').textContent='às '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  dbgEl.classList.remove('show');dbgEl.innerHTML='';
+  if(CU)setupUI();
+}
+
+function handleUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(evt){
+    try{
+      const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:true});
+      processarWorkbook(wb,`"${file.name}"`);
+    }catch(err){
+      document.getElementById('dbg').classList.add('show');
+      document.getElementById('dbg').innerHTML=`<b>Erro:</b> ${err.message}`;
+      setUS('Erro ao processar a planilha.','err');
+      console.error(err);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function setUS(msg,cls){const el=document.getElementById('ust');el.textContent=msg;el.className='upst'+(cls?' '+cls:'')}
+
+// ═══════════════════════════════════════════════
+// FILTRO DE CANAL — popula o dropdown
+// ═══════════════════════════════════════════════
+function populateCanalFiltro(){
+  // Canal
+  const selC=document.getElementById('canalFiltro');
+  const canais=[...new Set(VENDAS.map(r=>col(r,CIDX,'canal')).filter(Boolean))].sort();
+  selC.innerHTML='<option value="">Todos os canais</option>';
+  canais.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;selC.appendChild(o);});
+
+  // Vendedor
+  const selV=document.getElementById('vendedorFiltro');
+  const vends=[...new Set(VENDAS.map(r=>col(r,CIDX,'vendedor')).filter(Boolean))].sort();
+  selV.innerHTML='<option value="">Todos os vendedores</option>';
+  vends.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;selV.appendChild(o);});
+
+  // Mês — lista todos os meses encontrados na planilha, mais recente primeiro
+  const selM=document.getElementById('mesFiltro');
+  const mesesSet=new Set();
+  VENDAS.forEach(r=>{const m=mesVenda(r);if(m&&m!=='__sem_data__')mesesSet.add(m);});
+  const mesesSort=[...mesesSet].sort((a,b)=>{
+    const[ma,ya]=a.split('/').map(Number);
+    const[mb,yb]=b.split('/').map(Number);
+    return yb!==ya?yb-ya:mb-ma;
+  });
+  const curVal=selM.value;
+  selM.innerHTML='<option value="">Mês atual</option>';
+  mesesSort.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;selM.appendChild(o);});
+  if(curVal&&mesesSort.includes(curVal))selM.value=curVal;
+
+  // Dias úteis por canal
+  renderDiasConfig(canais);
+}
+
+function onMesFiltroChange(){
+  // Quando muda o mês, reseta filtros de dashboard (semana/cidade/bairro) pois são específicos do mês
+  FILTRO_DASH.semana=null;FILTRO_DASH.cidade=null;FILTRO_DASH.bairro=null;
+  atualizarChipFiltro();
+  renderGestor();
+}
+
+function getCanalFiltro(){const el=document.getElementById('canalFiltro');return el?el.value:'';}
+function getVendedorFiltro(){const el=document.getElementById('vendedorFiltro');return el?el.value:'';}
+function getMesFiltro(){const el=document.getElementById('mesFiltro');return el?el.value:'';}
+
+// ═══════════════════════════════════════════════
+// PARSEDATE ROBUSTO
+// Trata dd/mm/yyyy, serial Excel, Date object, ISO
+// ═══════════════════════════════════════════════
+function parseDateRobust(s){
+  if(!s&&s!==0)return null;
+  // Objeto Date (quando xlsx lê com cellDates:true)
+  if(s instanceof Date)return isNaN(s.getTime())?null:s;
+  const str=String(s).trim();
+  if(!str||str===''||str==='0')return null;
+  // dd/mm/yyyy ou dd/mm/yy
+  const slash=str.split('/');
+  if(slash.length===3){
+    let yr=+slash[2];
+    if(yr<100)yr+=2000;
+    const d=new Date(yr,+slash[1]-1,+slash[0]);
+    if(!isNaN(d.getTime()))return d;
+  }
+  // dd-mm-yyyy
+  const dash=str.split('-');
+  if(dash.length===3&&dash[0].length===2){
+    const d=new Date(+dash[2],+dash[1]-1,+dash[0]);
+    if(!isNaN(d.getTime()))return d;
+  }
+  // Serial numérico do Excel (número entre 30000–60000)
+  const n=Number(str);
+  if(!isNaN(n)&&n>30000&&n<70000){
+    // Corrige o bug do Excel (1900 não era bissexto)
+    const d=new Date(Math.round((n-25569)*86400*1000));
+    if(!isNaN(d.getTime()))return d;
+  }
+  // ISO ou outros formatos reconhecidos pelo JS
+  const d=new Date(str);
+  if(!isNaN(d.getTime()))return d;
+  return null;
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function getMes(){const n=new Date();return String(n.getMonth()+1).padStart(2,'0')+'/'+n.getFullYear()}
+
+function mesVenda(r){
+  const d=parseDateRobust(col(r,CIDX,'data_venda'));
+  if(!d)return'__sem_data__';
+  return String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
+
+function getMesAtivo(){
+  const mes=getMes();
+  const temMesAtual=VENDAS.some(r=>mesVenda(r)===mes);
+  if(temMesAtual)return mes;
+  const meses=VENDAS.map(r=>mesVenda(r)).filter(m=>m!=='__sem_data__');
+  if(!meses.length)return mes;
+  meses.sort((a,b)=>{
+    const [ma,ya]=a.split('/');const [mb,yb]=b.split('/');
+    return(+yb*12+ +mb)-(+ya*12+ +ma);
+  });
+  return meses[0];
+}
+
+function getVendasV(nomeVendedor,mesOverride=''){
+  const mes=mesOverride||getMesAtivo();
+  return VENDAS.filter(r=>norm(col(r,CIDX,'vendedor'))===norm(nomeVendedor)&&mesVenda(r)===mes);
+}
+
+function getAllV(canalFiltro='',aplicarDash=true,vendedorFiltro='',mesFiltro=''){
+  // Se há filtro de mês explícito usa ele; senão usa o mês ativo da planilha
+  const mes=mesFiltro||getMesAtivo();
+  let rows=VENDAS.filter(r=>{
+    if(mesVenda(r)!==mes)return false;
+    if(canalFiltro&&col(r,CIDX,'canal')!==canalFiltro)return false;
+    if(vendedorFiltro&&col(r,CIDX,'vendedor')!==vendedorFiltro)return false;
+    return true;
+  });
+  if(aplicarDash)rows=aplicarFiltroDash(rows);
+  return rows;
+}
+
+function diasP(tot){const now=new Date(),ini=new Date(now.getFullYear(),now.getMonth(),1);let c=0;for(let d=new Date(ini);d<=now;d.setDate(d.getDate()+1))if(d.getDay()!==0&&d.getDay()!==6)c++;return Math.min(c,tot)}
+function diasR(){const now=new Date(),fim=new Date(now.getFullYear(),now.getMonth()+1,0);let c=0;for(let d=new Date(now);d<=fim;d.setDate(d.getDate()+1))if(d.getDay()!==0&&d.getDay()!==6)c++;return c}
+
+function semI(r){
+  const d=parseDateRobust(col(r,CIDX,'data_venda'));
+  if(!d)return-1;const dd=d.getDate();return dd<=7?0:dd<=14?1:dd<=21?2:3;
+}
+
+function getSt(r){return col(r,CIDX,'status')}
+function getCan(r){return col(r,CIDX,'canal')}
+function isCancel(r){const s=norm(getSt(r));return s.includes('cancelad')}
+function isHab(r){const s=norm(getSt(r));return s.includes('habilit')}
+function isAg(r){const s=norm(getSt(r));return s.includes('aguardando')||s.includes('instalac')||s.includes('pendente')}
+function isAtivo(r){const s=norm(getSt(r));return s.includes('ativo')||s.includes('ativa')}
+function stCls(s){
+  const sl=norm(s||'');
+  if(sl.includes('cancelad'))return'bc';
+  if(sl.includes('habilit'))return'bh';
+  if(sl.includes('aguardando')||sl.includes('instalac')||sl.includes('pendente'))return'bag';
+  if(sl.includes('ativo')||sl.includes('ativa'))return'ba';
+  return'bp';
+}
+function parseValor(v){
+  if(v===undefined||v===null||v==='')return 0;
+  if(typeof v==='number')return v;
+  // extrai número de strings como "750 MB - Bronze" ou "R$ 99,90"
+  const s=String(v).replace(/[^\d,\.]/g,' ').trim();
+  const nums=s.match(/[\d]+[,\.]?[\d]*/g);
+  if(!nums||!nums.length)return 0;
+  const n=parseFloat(nums[0].replace(',','.'));
+  return isNaN(n)?0:n;
+}
+function fR(n){
+  const v=typeof n==='string'?parseValor(n):Number(n||0);
+  if(v===0)return'—';
+  return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// ═══════════════════════════════════════════════
+// SETUP UI
+// ═══════════════════════════════════════════════
+function setupUI(){
+  const u=CU;
+  const ini=u.nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('tav').textContent=ini;
+  document.getElementById('tnm').textContent=u.nome;
+  const ce=document.getElementById('tca');
+
+  // Configura badge do usuário sempre
+  ce.textContent=u.perfil==='gestor'?'Gestor':u.canal||'Vendedor';
+  ce.className='ctag '+(u.perfil==='gestor'?'cgest':isVendaInterna(u.canal||'')?'cint':'cpap');
+
+  // Se nenhuma planilha carregada, mostra tela vazia na aba Performance
+  if(!PLANILHA_CARREGADA){
+    document.getElementById('semPlanilha').classList.remove('hidden');
+    document.getElementById('gtog').classList.add('hidden');
+    document.getElementById('vv').classList.add('hidden');
+    document.getElementById('gv').classList.add('hidden');
+    // Se só liquidez foi carregada, vai direto para ela
+    if(LIQ_CARREGADA) setPage('liq');
+    return;
+  }
+
+  document.getElementById('semPlanilha').classList.add('hidden');
+  if(u.perfil==='gestor'){
+    ce.textContent='Gestor';ce.className='ctag cgest';
+    document.getElementById('gtog').classList.remove('hidden');
+    document.getElementById('gv').classList.remove('hidden');
+    document.getElementById('vv').classList.add('hidden');
+    populateCanalFiltro();
+    renderGestor();
+  }else{
+    ce.textContent=u.canal||'Vendedor';
+    ce.className='ctag '+(isVendaInterna(u.canal||'')?'cint':'cpap');
+    document.getElementById('gtog').classList.add('hidden');
+    document.getElementById('vv').classList.remove('hidden');
+    document.getElementById('gv').classList.add('hidden');
+    renderVendedor(u.nome,u.canal||'');
+  }
+}
+
+function setGV(v){
+  document.getElementById('beq').classList.toggle('active',v==='eq');
+  document.getElementById('bme').classList.toggle('active',v==='me');
+  document.getElementById('gv').classList.toggle('hidden',v!=='eq');
+  document.getElementById('vv').classList.toggle('hidden',v!=='me');
+  if(v==='me')renderVendedor(CU.nome,CU.canal||'');
+  else renderGestor();
+}
+function setTab(n){[1,2,3].forEach(i=>{document.getElementById('t'+i).classList.toggle('active',i===n);document.getElementById(['tabR','tabU','tabD'][i-1]).classList.toggle('hidden',i!==n);})}
+
+// ═══════════════════════════════════════════════
+// RENDER VENDEDOR
+// ═══════════════════════════════════════════════
+function renderVendedor(nome,canal){
+  const v=getVendasV(nome);
+  const MV=30,MH=10,MC=2;
+  const DM=getDiasCanal(canal||'');
+  const DP=diasP(DM);
+  const vendidos=v.filter(r=>!isCancel(r)).length;
+  const hab=v.filter(r=>isHab(r)).length;
+  const ag=v.filter(r=>isAg(r)).length;
+  const can=v.filter(r=>isCancel(r)).length;
+  const prod=DP>0?vendidos/DP:0,mp=MV/DM;
+
+  document.getElementById('vv1').textContent=vendidos;
+  document.getElementById('vs1').textContent='Meta: '+MV;
+  document.getElementById('vv2').textContent=DP;
+  document.getElementById('vs2').textContent='de '+DM+' no mês';
+  document.getElementById('vv3').textContent=prod.toFixed(2).replace('.',',');
+  const ps=document.getElementById('vs3');ps.textContent='Meta: '+mp.toFixed(2).replace('.',',')+' /dia';ps.className='ms '+(prod>=mp?'up2':'wa');
+  document.getElementById('vv4').textContent=can;
+  const cs2=document.getElementById('vs4');cs2.textContent=can>MC?'Acima do limite':'Dentro do limite';cs2.className='ms '+(can>MC?'dg':'up2');
+
+  const pV=Math.min(100,Math.round(vendidos/MV*100));
+  const pH=Math.min(100,Math.round(hab/MH*100));
+  const pA=vendidos>0?Math.min(100,Math.round(ag/vendidos*100)):0;
+  const pC=MC>0?Math.min(100,Math.round(can/MC*100)):100;
+
+  document.getElementById('g1n').innerHTML=`<b>${vendidos}</b> / ${MV}`;document.getElementById('g1b').style.width=pV+'%';document.getElementById('g1p').textContent=pV+'% da meta';document.getElementById('g1r').textContent='Prazo: '+diasR()+' dias úteis';
+  document.getElementById('g2n').innerHTML=`<b>${hab}</b> / ${MH}`;document.getElementById('g2b').style.width=pH+'%';document.getElementById('g2p').textContent=pH+'% da meta';
+  document.getElementById('g3n').innerHTML=`<b>${ag}</b> pendentes`;document.getElementById('g3b').style.width=pA+'%';document.getElementById('g3p').textContent=pA+'% das vendas';
+  document.getElementById('g4n').innerHTML=`<b>${can}</b> / máx ${MC}`;document.getElementById('g4b').style.width=pC+'%';document.getElementById('g4p').textContent=can>MC?'Acima do limite':'Dentro do limite';document.getElementById('g4s').textContent=vendidos>0?(can/vendidos*100).toFixed(1).replace('.',',')+'% das vendas':'';
+
+
+
+  // Ranking com vendedores da planilha
+  const rank=VENDEDORES_PLANILHA.map(tv=>{
+    const tvv=getVendasV(tv.nome).filter(r=>!isCancel(r)).length;
+    return{...tv,vendidos:tvv,prod:DP>0?tvv/DP:0};
+  }).sort((a,b)=>b.prod-a.prod);
+
+  document.getElementById('rl').innerHTML=rank.map((r,i)=>{
+    const isMe=norm(r.nome)===norm(nome);
+    const ini2=r.nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    return`<li class="ri"><span class="rp${isMe?' me':''}">${i+1}</span><div class="ra${isMe?' me':''}">${ini2}</div><span class="rna${isMe?' me':''}">${r.nome}${isMe?' (você)':''}</span><span style="font-size:11px;color:var(--muted);margin-right:4px">${r.canal}</span><span class="rv">${r.prod.toFixed(2).replace('.',',')} /dia</span></li>`;
+  }).join('');
+
+  const ult=[...v].reverse().slice(0,6);
+  document.getElementById('ub').innerHTML=ult.map(r=>`<tr><td>${col(r,CIDX,'cliente')||'—'}</td><td>${col(r,CIDX,'servico')||'—'}</td><td>${fR(col(r,CIDX,'valor_pac')||col(r,CIDX,'valor'))}</td><td>${col(r,CIDX,'bairro')||'—'}</td><td><span class="bdg ${stCls(getSt(r))}">${getSt(r)||'—'}</span></td><td>${col(r,CIDX,'data_venda')||'—'}</td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem">Sem vendas no mês</td></tr>';
+
+  document.getElementById('db').innerHTML=v.map(r=>`<tr><td>${col(r,CIDX,'cliente')||'—'}</td><td style="font-family:monospace;font-size:10px">${col(r,CIDX,'cpf')||'—'}</td><td>${col(r,CIDX,'telefone')||'—'}</td><td>${col(r,CIDX,'servico')||'—'}</td><td>${fR(col(r,CIDX,'valor'))}</td><td>${fR(col(r,CIDX,'valor_pac'))}</td><td><span class="bdg ${stCls(getSt(r))}">${getSt(r)||'—'}</span></td><td>${[col(r,CIDX,'endereco'),col(r,CIDX,'numero'),col(r,CIDX,'complemento')].filter(Boolean).join(' ')||'—'}</td><td>${col(r,CIDX,'bairro')||'—'}</td><td>${col(r,CIDX,'cidade')||'—'}</td><td>${col(r,CIDX,'data_venda')||'—'}</td><td>${col(r,CIDX,'data_hab')||'—'}</td></tr>`).join('')||'<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:1rem">Sem vendas no mês</td></tr>';
+
+  const sw=[0,0,0,0];v.forEach(r=>{const i=semI(r);if(i>=0)sw[i]++});
+  if(CS)CS.destroy();
+  const swMax=Math.max(...sw,1);
+  CS=new Chart(document.getElementById('cs'),{type:'bar',data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4'],datasets:[{label:'Vendas',data:sw,backgroundColor:'#1E4A7A',borderColor:'#378ADD',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20}},plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#4A7090'}},y:{beginAtZero:true,max:swMax*1.25,ticks:{stepSize:1,font:{size:11},color:'#4A7090'},grid:{color:'rgba(100,160,230,0.08)'}}}},plugins:[{id:'labelTop',afterDatasetsDraw(chart){const{ctx,data}=chart;ctx.save();chart.getDatasetMeta(0).data.forEach((bar,i)=>{const v=data.datasets[0].data[i];if(!v)return;ctx.fillStyle='#378ADD';ctx.font='500 11px DM Sans,sans-serif';ctx.textAlign='center';ctx.fillText(v,bar.x,bar.y-5);});ctx.restore();}}]});
+}
+
+// ═══════════════════════════════════════════════
+// RENDER GESTOR
+// ═══════════════════════════════════════════════
+function renderGestor(){
+  USAR_FILTRO_MES=true;
+  const filtroCanal=getCanalFiltro();
+  const filtroVendedor=getVendedorFiltro();
+  const filtroMes=getMesFiltro();
+  const mesAtivo=filtroMes||getMesAtivo();
+  const mesAtual=getMes();
+
+  const aviso=document.getElementById('avisoMes');
+  if(aviso){
+    if(mesAtivo!==mesAtual){
+      const descMes=filtroMes?`Mês selecionado: ${mesAtivo}`:`Exibindo dados de ${mesAtivo} (mês mais recente com registros na planilha). O mês atual (${mesAtual}) não tem dados.`;
+      aviso.style.display='block';
+      aviso.textContent=descMes;
+    }else{
+      aviso.style.display='none';
+      aviso.textContent='';
+    }
+  }
+  const all=getAllV(filtroCanal,true,filtroVendedor,filtroMes);
+
+  // Contadores
+  const tV=all.filter(r=>!isCancel(r)).length;
+  const tH=all.filter(r=>isHab(r)).length;
+  const tA=all.filter(r=>isAg(r)).length;
+  const tC=all.filter(r=>isCancel(r)).length;
+
+  document.getElementById('gm1').textContent=tV;
+  document.getElementById('gs1').textContent=tV>0?`${tH+tA+tC} processamentos`:'';
+  document.getElementById('gm2').textContent=tH;
+  document.getElementById('gs2').textContent=tV>0?Math.round(tH/(tV||1)*100)+'% das vendas':'';
+  document.getElementById('gm3').textContent=tA;document.getElementById('gs3').textContent='Em fila técnica';
+  document.getElementById('gm4').textContent=tC;
+  document.getElementById('gs4').textContent=tV>0?(tC/tV*100).toFixed(1).replace('.',',')+'% das vendas':'';
+
+  // Previsão da Equipe + Receita Total
+  // Só faz sentido projetar se o mês ainda está em andamento
+  const canaisAll=[...new Set(all.map(r=>getCan(r)).filter(Boolean))];
+  const diasMedioEquipe=canaisAll.length
+    ?canaisAll.reduce((s,c)=>s+getDiasCanal(c),0)/canaisAll.length
+    :22;
+  const diasPercArr=diasP(Math.round(diasMedioEquipe));
+  const mesEmAndamento=mesAtivo===mesAtual;
+  const prevEquipe=mesEmAndamento&&diasPercArr>0?Math.round((tV/diasPercArr)*diasMedioEquipe):null;
+  document.getElementById('gm5').textContent=prevEquipe!==null?prevEquipe:'—';
+  document.getElementById('gs5').textContent=prevEquipe!==null
+    ?`ritmo de ${(tV/diasPercArr).toFixed(2).replace('.',',')} /dia`
+    :'mês encerrado';
+  const receitaTotal=all.reduce((s,r)=>s+parseValor(col(r,CIDX,'valor_pac')||col(r,CIDX,'valor')),0);
+  const ticketMedio=tV>0?receitaTotal/tV:0;
+  document.getElementById('gm7').textContent=ticketMedio>0?fR(ticketMedio):'—';
+  document.getElementById('gs7').textContent=tV>0?`${tV} serviços`:'';
+  document.getElementById('gm6').textContent=receitaTotal>0?fR(receitaTotal):'—';
+  document.getElementById('gs6').textContent=tV>0?`${tV} serviços`:'';
+
+  // Info do filtro
+  const partesFiltro=[];
+  if(filtroCanal)partesFiltro.push(`Canal: "${filtroCanal}"`);
+  if(filtroVendedor)partesFiltro.push(`Vendedor: "${filtroVendedor}"`);
+  if(filtroMes)partesFiltro.push(`Mês: ${filtroMes}`);
+  document.getElementById('filtroCount').textContent=
+    partesFiltro.length?`${all.length} registros · ${partesFiltro.join(' · ')}`:
+    `${all.length} registros no total`;
+
+  // Legenda dinâmica com nomes reais dos canais
+  const canaisUnicos=[...new Set(all.map(r=>getCan(r)).filter(Boolean))];
+  document.getElementById('canalLegenda').innerHTML=canaisUnicos.map(c=>{
+    const cor=corCanal(c);
+    return`<span style="font-size:11px;display:flex;align-items:center;gap:5px">
+      <span style="width:8px;height:8px;border-radius:50%;background:${cor.bg};display:inline-block"></span>
+      ${c}</span>`;
+  }).join('');
+
+  // Tabela de desempenho por vendedor
+  // Dias úteis vêm do localStorage por canal
+  // Agrupa por nome+canal
+  const vendGrp={};
+  all.forEach(r=>{
+    const nome=col(r,CIDX,'vendedor');
+    const canalPlanilha=getCan(r);
+    const canal=getCanalVendedor(nome,canalPlanilha);
+    if(!nome)return;
+    const key=nome+'||'+canal;
+    if(!vendGrp[key])vendGrp[key]={nome,canal,rows:[]};
+    vendGrp[key].rows.push(r);
+  });
+
+  const rank=Object.values(vendGrp).map(tv=>{
+    const key=tv.nome+'||'+tv.canal;
+    const diasCanal=getDiasCanal(tv.canal); // dias úteis do canal salvo no localStorage
+    const diasTrab=DIAS_TRAB[key]!==undefined?DIAS_TRAB[key]:diasCanal;
+    const vd=tv.rows.filter(r=>!isCancel(r)).length;
+    const hb=tv.rows.filter(r=>isHab(r)).length;
+    const ag=tv.rows.filter(r=>isAg(r)).length;
+    const cn=tv.rows.filter(r=>isCancel(r)).length;
+    const pr=diasTrab>0?vd/diasTrab:0;
+    const prev=mesEmAndamento&&diasTrab>0?Math.round((vd/diasTrab)*diasCanal):null;
+    return{nome:tv.nome,canal:tv.canal,key,vd,hb,ag,cn,pr,diasTrab,diasCanal,prev};
+  }).sort((a,b)=>b.pr-a.pr);
+
+  const mp=Math.max(...rank.map(r=>r.pr),0.01);
+  document.getElementById('gb').innerHTML=rank.length
+    ?rank.map((r,i)=>`<tr>
+      <td style="color:var(--muted);font-weight:500">${i+1}</td>
+      <td style="font-weight:500">${r.nome}</td>
+      <td>${canalBadge(r.canal)}</td>
+      <td><input type="number" class="dias-trab" min="0.5" max="${r.diasCanal}" step="0.5" value="${r.diasTrab}"
+        onchange="DIAS_TRAB['${r.key.replace(/'/g,"\'")}']= Math.min(${r.diasCanal},Math.max(0.5,parseFloat(this.value)||0.5)); renderGestor()"
+        title="Dias úteis de ${r.nome} — padrão do canal: ${r.diasCanal}"/></td>
+      <td>${r.vd}<span class="mtr"><span class="mfi" style="width:${Math.round(r.pr/mp*100)}%"></span></span></td>
+      <td style="font-weight:500">
+        ${(()=>{
+          const pStr=r.pr.toFixed(2).replace('.',',');
+          if(!isPAP(r.canal))return`<span style="color:var(--blue-dark)">${pStr}<span style="font-size:10px;font-weight:400;color:var(--muted)">/dia</span></span>`;
+          let sem,cor;
+          if(r.pr<0.85){sem='🔴';cor='var(--red)';}
+          else if(r.pr<1){sem='🟡';cor='var(--amber)';}
+          else{sem='🟢';cor='var(--green)';}
+          return`<span style="font-size:15px;line-height:1">${sem}</span> <span style="color:${cor}">${pStr}<span style="font-size:10px;font-weight:400;color:var(--muted)">/dia</span></span>`;
+        })()}
+      </td>
+      <td style="font-weight:500;color:var(--blue-dark)">${r.prev!==null?r.prev+'<span style=\"font-size:10px;font-weight:400;color:var(--muted)\"> serv.</span>':'<span style=\"color:var(--muted);font-size:11px\">—</span>'}</td>
+      <td>${r.hb}</td>
+      <td>${r.ag}</td>
+      <td style="color:${r.cn>2?'var(--red)':r.cn>0?'var(--amber)':'var(--green)'}">${r.cn}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:1rem">Nenhum vendedor encontrado para este canal</td></tr>';
+
+  // Gráfico por semana — agrupa pelos canais reais
+  // ── Gráfico de Linha — Vendas por Dia (todos os dias do mês) ──
+  const diaMap={};
+  all.forEach(r=>{
+    const d=parseDateRobust(col(r,CIDX,'data_venda'));
+    if(!d)return;
+    const key=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+    diaMap[key]=(diaMap[key]||0)+1;
+  });
+
+  // Gera todos os dias do mês ativo (sem pular nenhum)
+  const [mmAtivo,yyyyAtivo]=mesAtivo.split('/').map(Number);
+  const diasNoMes=new Date(yyyyAtivo,mmAtivo,0).getDate();
+  const linhaLabels=[];
+  const linhaData=[];
+  const pontoCors=[];  // cor do ponto: domingo=vermelho, sábado=âmbar, útil=azul
+  const weekDayNames=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+  for(let d=1;d<=diasNoMes;d++){
+    const label=String(d).padStart(2,'0')+'/'+String(mmAtivo).padStart(2,'0');
+    const dObj=new Date(yyyyAtivo,mmAtivo-1,d);
+    const dow=dObj.getDay(); // 0=dom, 6=sáb
+    linhaLabels.push(label);
+    linhaData.push(diaMap[label]||0);
+    if(dow===0)pontoCors.push('#E24B4A');       // domingo vermelho
+    else if(dow===6)pontoCors.push('#BA7517');   // sábado âmbar
+    else pontoCors.push('#185FA5');              // útil azul
+  }
+
+  const linhaMax=Math.max(...linhaData,1);
+
+  if(window._chartLinha)window._chartLinha.destroy();
+  window._chartLinha=new Chart(document.getElementById('chartLinha'),{
+    type:'line',
+    data:{
+      labels:linhaLabels,
+      datasets:[{
+        label:'Vendas',data:linhaData,
+        borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.12)',
+        borderWidth:2,
+        pointRadius:linhaData.map(v=>v>0?5:3),
+        pointBackgroundColor:pontoCors,
+        pointBorderColor:pontoCors,
+        pointHoverRadius:7,tension:0.3,fill:true
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:24}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          title:t=>{
+            const idx=t[0].dataIndex;
+            const dObj=new Date(yyyyAtivo,mmAtivo-1,idx+1);
+            return `${weekDayNames[dObj.getDay()]} ${t[0].label}`;
+          },
+          label:t=>`${t.parsed.y} venda${t.parsed.y!==1?'s':''}`
+        }}
+      },
+      scales:{
+        x:{
+          grid:{color:(ctx)=>{
+            const d=new Date(yyyyAtivo,mmAtivo-1,ctx.index+1);
+            return d.getDay()===0?'rgba(226,75,74,0.15)':d.getDay()===6?'rgba(186,117,23,0.15)':'transparent';
+          }},
+          ticks:{
+            font:{size:9},
+            color:(ctx)=>{
+              const d=new Date(yyyyAtivo,mmAtivo-1,ctx.index+1);
+              return d.getDay()===0?'#E24B4A':d.getDay()===6?'#BA7517':'#888';
+            },
+            maxRotation:0,
+            callback:(val,i)=>{
+              const d=new Date(yyyyAtivo,mmAtivo-1,i+1);
+              // Mostra label completo para dia 1, domingos, sábados e múltiplos de 5
+              if(i===0||d.getDay()===0||d.getDay()===6||(i+1)%5===0)return linhaLabels[i];
+              return '';
+            }
+          }
+        },
+        y:{beginAtZero:true,max:linhaMax*1.3,ticks:{stepSize:1,font:{size:11},color:'#4A7090'},grid:{color:'rgba(100,160,230,0.08)'}}
+      }
+    },
+    plugins:[{id:'linhaLabel',afterDatasetsDraw(chart){
+      const{ctx,data}=chart;ctx.save();
+      chart.getDatasetMeta(0).data.forEach((pt,i)=>{
+        const v=data.datasets[0].data[i];if(!v)return;
+        ctx.fillStyle=pontoCors[i];
+        ctx.font='500 10px DM Sans,sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText(v,pt.x,pt.y-10);
+      });
+      ctx.restore();
+    }}]
+  });
+
+  // ── Pizza Top 5 Planos ──────────────────────────────────
+  const planoMap={};
+  all.forEach(r=>{
+    const p=(col(r,CIDX,'servico')||'').trim();
+    if(p)planoMap[p]=(planoMap[p]||0)+1;
+  });
+  const planoSort=Object.entries(planoMap).sort((a,b)=>b[1]-a[1]);
+  const top5=planoSort.slice(0,5);
+  const pizzaLabels=top5.map(e=>e[0]);
+  const pizzaData=top5.map(e=>e[1]);
+  const pizzaTotal=pizzaData.reduce((s,v)=>s+v,0);
+  const pizzaCores=['#0C447C','#E85D04','#F4A100','#2C2C2A','#1D9E75','#B5D4F4'];
+  const pizzaBordas=['#042C53','#9C2A00','#B87200','#000','#0F6E56','#185FA5'];
+
+  if(window._chartPizza)window._chartPizza.destroy();
+  window._chartPizza=new Chart(document.getElementById('chartPizza'),{
+    type:'doughnut',
+    data:{
+      labels:pizzaLabels,
+      datasets:[{data:pizzaData,backgroundColor:pizzaCores,borderColor:pizzaBordas,borderWidth:1.5,hoverOffset:6}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'52%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>{
+          const pct=pizzaTotal>0?((ctx.parsed/pizzaTotal)*100).toFixed(1):'0';
+          return` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+        }}}
+      }
+    },
+    plugins:[{id:'pizzaLabel',afterDatasetsDraw(chart){
+      const{ctx,data}=chart;
+      ctx.save();
+      chart.getDatasetMeta(0).data.forEach((arc,i)=>{
+        const pct=pizzaTotal>0?((data.datasets[0].data[i]/pizzaTotal)*100):0;
+        if(pct<4)return;
+        const angle=(arc.startAngle+arc.endAngle)/2;
+        const r=arc.outerRadius*0.72;
+        const x=arc.x+Math.cos(angle)*r;
+        const y=arc.y+Math.sin(angle)*r;
+        ctx.fillStyle='#fff';
+        ctx.font='500 11px DM Sans,sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(pct.toFixed(1)+'%',x,y);
+      });
+      ctx.restore();
+    }}]
+  });
+
+  // Legenda customizada da pizza
+  document.getElementById('pizzaLegenda').innerHTML=pizzaLabels.map((l,i)=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="width:12px;height:12px;border-radius:3px;background:${pizzaCores[i]};flex-shrink:0;display:inline-block"></span>
+      <span style="flex:1;color:var(--text)">${l}</span>
+      <span style="font-weight:500;color:var(--text)">${pizzaData[i]}</span>
+      <span style="color:var(--muted);font-size:11px;min-width:36px;text-align:right">${pizzaTotal>0?((pizzaData[i]/pizzaTotal)*100).toFixed(1)+'%':'—'}</span>
+    </div>`).join('');
+
+  // Gráfico semanal usa dados sem filtro de semana (para ver contexto das outras semanas)
+  const allSemSemana=getAllV(filtroCanal,false,filtroVendedor,filtroMes).filter(r=>{
+    if(FILTRO_DASH.cidade&&(col(r,CIDX,'cidade')||'').trim()!==FILTRO_DASH.cidade)return false;
+    if(FILTRO_DASH.bairro&&(col(r,CIDX,'bairro')||'').trim()!==FILTRO_DASH.bairro)return false;
+    return true;
+  });
+  const semData={};
+  canaisUnicos.forEach(c=>{semData[c]=[0,0,0,0];});
+  allSemSemana.forEach(r=>{
+    const i=semI(r);if(i<0)return;
+    const c=getCan(r);if(semData[c])semData[c][i]++;
+  });
+
+  // Cores por canal — nomenclatura exata da planilha
+  function corCanal(c){
+    const n=norm(c);
+    if(n.includes('venda_interna')||n.includes('venda interna')||n==='venda_interna')return{bg:'#0C447C',bd:'#042C53'};
+    if(n.includes('pap_metropolitan')||n.includes('pap metropolitan')||n.includes('metropolitana'))return{bg:'#E85D04',bd:'#9C2A00'};
+    if(n.includes('robo')||n.includes('robô')||n.includes('mundiale'))return{bg:'#F4A100',bd:'#B87200'};
+    if(n.includes('empresas')||n.includes('sim_empresa'))return{bg:'#2C2C2A',bd:'#000'};
+    // fallback palette
+    const palette=[{bg:'#B5D4F4',bd:'#185FA5'},{bg:'#9FE1CB',bd:'#0F6E56'},{bg:'#F5C4B3',bd:'#993C1D'},{bg:'#CECBF6',bd:'#534AB7'}];
+    const i=canaisUnicos.indexOf(c)%palette.length;
+    return palette[Math.max(0,i)];
+  }
+  const datasets=canaisUnicos.map(c=>{
+    const cor=corCanal(c);
+    return{
+      label:c,data:semData[c]||[0,0,0,0],
+      backgroundColor:cor.bg,borderColor:cor.bd,
+      borderWidth:1.5,borderRadius:3,
+    };
+  });
+
+  if(CG)CG.destroy();
+  const cgTotals=['Sem 1','Sem 2','Sem 3','Sem 4'].map((_,i)=>datasets.reduce((s,ds)=>s+(ds.data[i]||0),0));
+  const cgMax=Math.max(...cgTotals,1);
+  // Destaca semana ativa
+  const dsAtivos=datasets.map(ds=>({...ds,
+    backgroundColor:ds.data.map((_,i)=>FILTRO_DASH.semana===null||FILTRO_DASH.semana===i
+      ?ds.backgroundColor:(ds.backgroundColor+'55')),
+    borderColor:ds.data.map((_,i)=>FILTRO_DASH.semana===null||FILTRO_DASH.semana===i
+      ?ds.borderColor:(ds.borderColor+'55')),
+  }));
+  CG=new Chart(document.getElementById('cg'),{
+    type:'bar',
+    data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4'],datasets:dsAtivos},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{title:t=>`${t[0].label} — clique para filtrar`}}},
+      onClick(_,els){if(els.length)setFiltroDash('semana',els[0].index);},
+      onHover(e,els){e.native.target.style.cursor=els.length?'pointer':'default';},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#4A7090'},stacked:true},
+        y:{beginAtZero:true,max:cgMax*1.25,stacked:true,ticks:{stepSize:1,font:{size:11},color:'#4A7090'},grid:{color:'rgba(100,160,230,0.08)'}}}},
+    plugins:[{id:'stackedTotal',afterDatasetsDraw(chart){
+      const{ctx,data}=chart;const nds=data.datasets.length;if(!nds)return;
+      const lastMeta=chart.getDatasetMeta(nds-1);ctx.save();
+      lastMeta.data.forEach((bar,i)=>{
+        const total=data.datasets.reduce((s,ds)=>s+(ds.data[i]||0),0);if(!total)return;
+        const ativo=FILTRO_DASH.semana===null||FILTRO_DASH.semana===i;
+        ctx.fillStyle=ativo?'#444441':'#aaa';
+        ctx.font=`${ativo?'500':'400'} 11px DM Sans,sans-serif`;
+        ctx.textAlign='center';ctx.fillText(total,bar.x,bar.y-5);
+      });ctx.restore();
+    }}]
+  });
+
+  // Tabela completa
+  document.getElementById('gdb').innerHTML=all.map(r=>`<tr>
+    <td style="font-weight:500">${col(r,CIDX,'vendedor')||'—'}</td>
+    <td>${canalBadge(getCan(r))}</td>
+    <td>${col(r,CIDX,'cliente')||'—'}</td>
+    <td style="font-family:monospace;font-size:10px">${col(r,CIDX,'cpf')||'—'}</td>
+    <td>${col(r,CIDX,'telefone')||'—'}</td>
+    <td>${col(r,CIDX,'servico')||'—'}</td>
+    <td>${fR(col(r,CIDX,'valor'))}</td>
+    <td>${fR(col(r,CIDX,'valor_pac'))}</td>
+    <td><span class="bdg ${stCls(getSt(r))}">${getSt(r)||'—'}</span></td>
+    <td>${col(r,CIDX,'bairro')||'—'}</td>
+    <td>${col(r,CIDX,'cidade')||'—'}</td>
+    <td>${col(r,CIDX,'data_venda')||'—'}</td>
+    <td>${col(r,CIDX,'data_hab')||'—'}</td>
+  </tr>`).join('')||'<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:1rem">Sem vendas no período</td></tr>';
+
+  // ── Gráfico por Cidade ──────────────────────────────────
+  // Usa dados sem filtro de bairro para o gráfico de cidade (mas aplica filtro de semana e canal)
+  const allSemBairro=getAllV(filtroCanal,false,filtroVendedor,filtroMes).filter(r=>{
+    if(FILTRO_DASH.semana!==null&&semI(r)!==FILTRO_DASH.semana)return false;
+    if(FILTRO_DASH.bairro&&(col(r,CIDX,'bairro')||'').trim()!==FILTRO_DASH.bairro)return false;
+    return true;
+  });
+  const cidadeMap={};
+  allSemBairro.forEach(r=>{
+    const c=(col(r,CIDX,'cidade')||'').trim();
+    if(c)cidadeMap[c]=(cidadeMap[c]||0)+1;
+  });
+  const cidadeSort=Object.entries(cidadeMap).sort((a,b)=>b[1]-a[1]);
+  const cidadeLabels=cidadeSort.map(e=>e[0]);
+  const cidadeData=cidadeSort.map(e=>e[1]);
+  const cidadeH=Math.max(300, cidadeLabels.length*36+80);
+  document.getElementById('cidadeChartWrap').style.height=cidadeH+'px';
+  if(window._chartCidade)window._chartCidade.destroy();
+  const cidadeMax=Math.max(...cidadeData,1);
+  window._chartCidade=new Chart(document.getElementById('chartCidade'),{
+    type:'bar',
+    data:{labels:cidadeLabels,datasets:[{
+      label:'Vendas',data:cidadeData,
+      backgroundColor:cidadeLabels.map(l=>FILTRO_DASH.cidade===null||FILTRO_DASH.cidade===l?'#8B5A2B':'#8B5A2B44'),
+      borderColor:cidadeLabels.map(l=>FILTRO_DASH.cidade===null||FILTRO_DASH.cidade===l?'#C8874A':'#C8874A44'),
+      borderWidth:1.5,borderRadius:4
+    }]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:36}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{title:t=>`${t[0].label} — clique para filtrar`}}},
+      onClick(_,els){if(els.length)setFiltroDash('cidade',cidadeLabels[els[0].index]);},
+      onHover(e,els){e.native.target.style.cursor=els.length?'pointer':'default';},
+      scales:{
+        x:{beginAtZero:true,max:cidadeMax*1.18,ticks:{stepSize:1,font:{size:11},color:'#4A7090'},grid:{color:'rgba(100,160,230,0.08)'}},
+        y:{ticks:{font:{size:11},color:'#4A7090'},grid:{display:false}}
+      }
+    },
+    plugins:[{id:'labelRight',afterDatasetsDraw(chart){const{ctx,data}=chart;ctx.save();chart.getDatasetMeta(0).data.forEach((bar,i)=>{const v=data.datasets[0].data[i];if(!v)return;const ativo=FILTRO_DASH.cidade===null||FILTRO_DASH.cidade===cidadeLabels[i];ctx.fillStyle=ativo?'#C8874A':'#444';ctx.font='500 11px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillText(v,bar.x+6,bar.y+4);});ctx.restore();}}]
+  });
+
+  // ── Gráfico por Bairro ──────────────────────────────────
+  // Usa dados sem filtro de cidade para o gráfico de bairro (mas aplica filtro de semana e canal)
+  const allSemCidade=getAllV(filtroCanal,false,filtroVendedor,filtroMes).filter(r=>{
+    if(FILTRO_DASH.semana!==null&&semI(r)!==FILTRO_DASH.semana)return false;
+    if(FILTRO_DASH.cidade&&(col(r,CIDX,'cidade')||'').trim()!==FILTRO_DASH.cidade)return false;
+    return true;
+  });
+  const bairroMap={};
+  allSemCidade.forEach(r=>{
+    const b=(col(r,CIDX,'bairro')||'').trim();
+    if(b)bairroMap[b]=(bairroMap[b]||0)+1;
+  });
+  const bairroSort=Object.entries(bairroMap).sort((a,b)=>b[1]-a[1]).slice(0,30);
+  const bairroLabels=bairroSort.map(e=>e[0]);
+  const bairroData=bairroSort.map(e=>e[1]);
+  const bairroH=Math.max(300, bairroLabels.length*32+80);
+  document.getElementById('bairroChartWrap').style.height=bairroH+'px';
+  if(window._chartBairro)window._chartBairro.destroy();
+  const bairroMax=Math.max(...bairroData,1);
+  window._chartBairro=new Chart(document.getElementById('chartBairro'),{
+    type:'bar',
+    data:{labels:bairroLabels,datasets:[{
+      label:'Vendas',data:bairroData,
+      backgroundColor:bairroLabels.map(l=>FILTRO_DASH.bairro===null||FILTRO_DASH.bairro===l?'#1D7A4A':'#1D7A4A44'),
+      borderColor:bairroLabels.map(l=>FILTRO_DASH.bairro===null||FILTRO_DASH.bairro===l?'#2ECC71':'#2ECC7144'),
+      borderWidth:1.5,borderRadius:4
+    }]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:36}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{title:t=>`${t[0].label} — clique para filtrar`}}},
+      onClick(_,els){if(els.length)setFiltroDash('bairro',bairroLabels[els[0].index]);},
+      onHover(e,els){e.native.target.style.cursor=els.length?'pointer':'default';},
+      scales:{
+        x:{beginAtZero:true,max:bairroMax*1.18,ticks:{stepSize:1,font:{size:11},color:'#4A7090'},grid:{color:'rgba(100,160,230,0.08)'}},
+        y:{ticks:{font:{size:11},color:'#4A7090'},grid:{display:false}}
+      }
+    },
+    plugins:[{id:'labelRight',afterDatasetsDraw(chart){const{ctx,data}=chart;ctx.save();chart.getDatasetMeta(0).data.forEach((bar,i)=>{const v=data.datasets[0].data[i];if(!v)return;const ativo=FILTRO_DASH.bairro===null||FILTRO_DASH.bairro===bairroLabels[i];ctx.fillStyle=ativo?'#2ECC71':'#444';ctx.font='500 11px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillText(v,bar.x+6,bar.y+4);});ctx.restore();}}]
+  });
+}
+
+// ═══════════════════════════════════════════════
+// MÓDULO LIQUIDEZ
+// ═══════════════════════════════════════════════
+let LIQ_DADOS=[];  // rows da planilha de liquidez
+let LIQ_IDX={};    // mapeamento de colunas
+
+const LIQ_COLS={
+  contrato:   ['contrato','numero_contrato','num_contrato'],
+  id_cliente: ['id_cliente','id_cliente','cliente_id'],
+  cliente:    ['nome_cliente','nome_cliente','cliente','razao_social','nome'],
+  adesao:     ['adesao','data_adesao','adesao'],
+  plano_num:  ['numero_plano','num_plano'],
+  plano_nome: ['nome_plano','plano','servico'],
+  vencimento: ['dia_vencimento','vencimento','dia_venc'],
+  valor:      ['valor_plano','valor','vlr'],
+  status:     ['status_servico','status','situacao','servico_status'],
+  vendedor:   ['vendedor_','vendedor','seller'],
+  aceito:     ['contrato_aceito'],
+  data_venda: ['data_da_venda','data_venda'],
+  data_ativ:  ['data_ativacao','data_ativacao'],
+  data_pgto:  ['data_de_pagamento','data_pagamento'],
+};
+
+function normLiq(s){
+  return String(s||'').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'_')
+    .replace(/^_+|_+$/g,'').trim();
+}
+function buildLiqIdx(cols){
+  const idx={};
+  const pairs=cols.map(c=>({orig:c,n:normLiq(c)}));
+  for(const [key,variants] of Object.entries(LIQ_COLS)){
+    for(const v of variants){
+      const m=pairs.find(p=>p.n===normLiq(v));
+      if(m){idx[key]=m.orig;break;}
+    }
+  }
+  return idx;
+}
+
+function colLiq(row,key){
+  if(LIQ_IDX[key]!==undefined){
+    const v=row[LIQ_IDX[key]];
+    if(v!==undefined&&v!==null)return String(v).trim();
+  }
+  // Fallback: tenta encontrar pela normalização
+  const nk=normLiq(key);
+  for(const k of Object.keys(row)){
+    if(normLiq(k)===nk){return String(row[k]||'').trim();}
+  }
+  return'';
+}
+
+function isLiquidado(row){
+  const pgto=colLiq(row,'data_pgto');
+  return pgto&&pgto!==''&&pgto!=='None'&&pgto!=='null';
+}
+
+function isChurn(row){
+  return norm(colLiq(row,'status')).includes('cancelad');
+}
+
+function mesLiq(row){
+  const d=parseDateRobust(colLiq(row,'data_pgto')||colLiq(row,'data_venda'));
+  if(!d)return'';
+  return String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
+
+// Upload da planilha de liquidez
+function handleUploadLiq(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(evt){
+    try{
+      const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:true});
+      // Procura aba "Dados" primeiro, senão usa a primeira
+      const sheetName=wb.SheetNames.includes('Dados')?'Dados':wb.SheetNames[0];
+      const ws=wb.Sheets[sheetName];
+      const raw=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!raw.length){setUSLiq('Planilha vazia ou formato não reconhecido.','err');return;}
+      const foundCols=Object.keys(raw[0]);
+      LIQ_IDX=buildLiqIdx(foundCols);
+      // Diagnóstico de mapeamento
+      const mapped=Object.entries(LIQ_IDX).map(([k,v])=>`${k}→${v}`).join(', ');
+      console.log('LIQ mapeamento:', mapped);
+      const required=['cliente','valor','status','vendedor','data_pgto'];
+      const missing=required.filter(k=>!LIQ_IDX[k]);
+      if(missing.length>0){
+        console.warn('Colunas não mapeadas:', missing);
+        // Não bloqueia — tenta renderizar mesmo assim
+      }
+      LIQ_DADOS=raw;
+      LIQ_CARREGADA=true;
+      const n=new Date();
+      setUSLiq(`"${file.name}" (aba: ${sheetName}) — ${raw.length} registros`,'ok');
+      setUDTLiq('às '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+      populateLiqFiltros();
+      document.getElementById('semPlanilhaLiq').style.display='none';
+      document.getElementById('liqContent').style.display='';
+      setPage('liq');
+      renderLiquidez();
+    }catch(err){
+      setUSLiq('Erro: '+err.message,'err');console.error(err);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function setUSLiq(msg,cls){
+  const el=document.getElementById('ustLiqPerf');
+  if(el){el.textContent=msg;el.className='upst'+(cls?' '+cls:'');}
+}
+function setUDTLiq(msg){
+  const el=document.getElementById('udtLiqPerf');
+  if(el)el.textContent=msg;
+}
+
+function populateLiqFiltros(){
+  // Vendedores
+  const selV=document.getElementById('liqFiltroVend');
+  const vends=[...new Set(LIQ_DADOS.map(r=>colLiq(r,'vendedor')).filter(Boolean))].sort();
+  selV.innerHTML='<option value="">Todos os vendedores</option>';
+  vends.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;selV.appendChild(o);});
+  // Meses (baseado em data_pgto ou data_venda)
+  const selM=document.getElementById('liqFiltroMes');
+  const meses=[...new Set(LIQ_DADOS.map(r=>mesLiq(r)).filter(Boolean))].sort((a,b)=>{
+    const[ma,ya]=a.split('/').map(Number);const[mb,yb]=b.split('/').map(Number);
+    return yb!==ya?yb-ya:mb-ma;
+  });
+  selM.innerHTML='<option value="">Todos os meses</option>';
+  meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;selM.appendChild(o);});
+}
+
+function renderLiquidez(){
+  const fVend=(document.getElementById('liqFiltroVend')||{}).value||'';
+  const fMes=(document.getElementById('liqFiltroMes')||{}).value||'';
+  const perc=parseFloat((document.getElementById('percComissao')||{}).value||3)/100;
+  const base=parseFloat((document.getElementById('baseComissao')||{}).value||4000);
+
+  // Aplica filtros — para vendedor, mostra seus dados; gestor vê todos
+  let rows=LIQ_DADOS.filter(r=>{
+    if(fVend&&colLiq(r,'vendedor')!==fVend)return false;
+    if(fMes&&mesLiq(r)!==fMes)return false;
+    return true;
+  });
+
+  // Se vendedor logado (não gestor), filtra automaticamente pelos seus dados
+  if(CU&&CU.perfil!=='gestor'){
+    rows=rows.filter(r=>norm(colLiq(r,'vendedor'))===norm(CU.nome));
+  }
+
+  const liquidados=rows.filter(r=>isLiquidado(r)&&!isChurn(r));
+  const inadimplentes=rows.filter(r=>!isLiquidado(r)&&!isChurn(r));
+  const churns=rows.filter(r=>isChurn(r));
+  const receita=liquidados.reduce((s,r)=>s+parseValor(colLiq(r,'valor')),0);
+
+  // Cards
+  document.getElementById('lm1').textContent=rows.length||'—';
+  document.getElementById('ls1').textContent=`${liquidados.length} liq. · ${inadimplentes.length} inad.`;
+  document.getElementById('lm2').textContent=liquidados.length||'—';
+  document.getElementById('ls2').textContent=rows.length>0?Math.round(liquidados.length/rows.length*100)+'% do total':'';
+  document.getElementById('lm3').textContent=inadimplentes.length||'0';
+  document.getElementById('ls3').textContent=rows.length>0?(inadimplentes.length/rows.length*100).toFixed(1).replace('.',',')+'% do total':'';
+  document.getElementById('lm4').textContent=churns.length||'0';
+  document.getElementById('ls4').textContent=churns.length>0?'impacta comissão':'';
+  document.getElementById('lm5').textContent=receita>0?fR(receita):'—';
+  document.getElementById('ls5').textContent=liquidados.length>0?`ticket médio ${fR(receita/liquidados.length)}`:'';
+  document.getElementById('liqFiltroCount').textContent=`${rows.length} contratos`;
+
+  // Tabela de comissionamento por vendedor
+  const vendGrpLiq={};
+  rows.forEach(r=>{
+    const v=colLiq(r,'vendedor');if(!v)return;
+    if(!vendGrpLiq[v])vendGrpLiq[v]={liq:0,inad:0,churn:0,receita:0};
+    if(isChurn(r))vendGrpLiq[v].churn++;
+    else if(isLiquidado(r)){vendGrpLiq[v].liq++;vendGrpLiq[v].receita+=parseValor(colLiq(r,'valor'));}
+    else vendGrpLiq[v].inad++;
+  });
+  const vendRank=Object.entries(vendGrpLiq).sort((a,b)=>b[1].receita-a[1].receita);
+  document.getElementById('liqTabVend').innerHTML=vendRank.length
+    ?vendRank.map(([nome,d],i)=>{
+      const comissao=Math.max(0,d.receita-base)*perc;
+      return`<tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td style="font-weight:500">${nome}</td>
+        <td style="color:var(--green)">${d.liq}</td>
+        <td style="color:${d.inad>0?'var(--red)':'var(--muted)'}">${d.inad}</td>
+        <td style="color:${d.churn>0?'var(--red)':'var(--muted)'}">${d.churn}</td>
+        <td style="font-weight:500">${fR(d.receita)}</td>
+        <td style="color:var(--muted);font-size:11px">${fR(base)}</td>
+        <td style="font-weight:500;color:var(--blue-dark)">${comissao>0?fR(comissao):'—'}</td>
+      </tr>`;
+    }).join('')
+    :'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:1rem">Sem dados</td></tr>';
+
+  // Tabela liquidados
+  document.getElementById('liqPagoBody').innerHTML=liquidados.length
+    ?liquidados.map(r=>`<tr>
+      <td>${colLiq(r,'cliente')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'vendedor')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'plano_nome')||'—'}</td>
+      <td>${fR(colLiq(r,'valor'))}</td>
+      <td style="font-size:10px">${colLiq(r,'vencimento')||'—'}</td>
+      <td style="font-size:10px;color:var(--green)">${colLiq(r,'data_pgto')||'—'}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem">Nenhum registro</td></tr>';
+
+  // Tabela inadimplentes
+  document.getElementById('liqInadBody').innerHTML=inadimplentes.length
+    ?inadimplentes.map(r=>`<tr>
+      <td>${colLiq(r,'cliente')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'vendedor')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'plano_nome')||'—'}</td>
+      <td>${fR(colLiq(r,'valor'))}</td>
+      <td style="font-size:10px">${colLiq(r,'vencimento')||'—'}</td>
+      <td><span class="bdg bc">${colLiq(r,'status')||'Sem pagamento'}</span></td>
+    </tr>`).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem">Nenhum inadimplente</td></tr>';
+
+  // Tabela churn
+  document.getElementById('liqChurnBody').innerHTML=churns.length
+    ?churns.map(r=>`<tr>
+      <td>${colLiq(r,'cliente')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'vendedor')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'plano_nome')||'—'}</td>
+      <td>${fR(colLiq(r,'valor'))}</td>
+      <td style="font-size:10px">${colLiq(r,'data_venda')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'data_ativ')||'—'}</td>
+      <td style="font-size:10px">${colLiq(r,'data_pgto')||'—'}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1rem">Nenhum cancelamento</td></tr>';
+}
+
+// Navegação entre páginas
+function setPage(page){
+  document.getElementById('page-perf').classList.toggle('hidden',page!=='perf');
+  document.getElementById('page-liq').classList.toggle('hidden',page!=='liq');
+  document.getElementById('ntab-perf').classList.toggle('active',page==='perf');
+  document.getElementById('ntab-liq').classList.toggle('active',page==='liq');
+  document.getElementById('tpage').textContent=page==='perf'?'Performance':'Liquidez';
+  if(page==='liq'){
+    // Mostra estado correto conforme dados disponíveis
+    const semEl=document.getElementById('semPlanilhaLiq');
+    const conEl=document.getElementById('liqContent');
+    if(LIQ_CARREGADA){
+      if(semEl)semEl.style.display='none';
+      if(conEl)conEl.style.display='';
+      if(CU&&CU.perfil!=='gestor'){
+        const selV=document.getElementById('liqFiltroVend');
+        if(selV)selV.value=CU.nome;
+      }
+      renderLiquidez();
+    }else{
+      if(semEl)semEl.style.display='';
+      if(conEl)conEl.style.display='none';
+    }
+  }
+}
+</script>
+</div><!-- end page-perf -->
+
+<!-- ═══════════ PÁGINA LIQUIDEZ ═══════════ -->
+<div id="page-liq" class="hidden">
+  <div class="main">
+
+    <div class="upbar" style="flex-direction:column;gap:12px">
+
+      <!-- UPLOADS: Performance + Liquidez lado a lado -->
+      <div style="display:flex;gap:16px;width:100%;flex-wrap:wrap;align-items:flex-start">
+
+        <!-- Performance -->
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:240px">
+          <div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Planilha de Vendas</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label class="uplbl" style="font-size:11px;padding:6px 12px">
+              <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Carregar (.xlsx)
+              <input type="file" id="fi" accept=".xlsx,.xls" onchange="handleUpload(event)"/>
+            </label>
+            <div>
+              <div class="upst" id="ust">Não carregada</div>
+              <div class="updt" id="udt"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="width:0.5px;background:var(--border);align-self:stretch"></div>
+
+        <!-- Liquidez -->
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:240px">
+          <div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Planilha de Liquidez</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <label class="uplbl" style="font-size:11px;padding:6px 12px">
+              <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Carregar (.xlsx)
+              <input type="file" id="fiLiqPerf" accept=".xlsx,.xls" onchange="handleUploadLiq(event)"/>
+            </label>
+            <div>
+              <div class="upst" id="ustLiqPerf">Não carregada</div>
+              <div class="updt" id="udtLiqPerf"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- N8N -->
+      <div style="width:100%;border-top:0.5px solid var(--border);padding-top:10px">
+        <div style="font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          N8N — Carregamento automático via OneDrive
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Webhook · Planilha de Vendas</div>
+            <div class="od-row" style="margin-top:0">
+              <input class="od-input" id="n8nUrlVendas" placeholder="https://…/webhook/vendas"/>
+              <button class="od-btn" onclick="carregarN8NVendas()">
+                <svg width="11" height="11" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Conectar
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Webhook · Planilha de Liquidez</div>
+            <div class="od-row" style="margin-top:0">
+              <input class="od-input" id="n8nUrlLiquidez" placeholder="https://…/webhook/liquidez"/>
+              <button class="od-btn" onclick="carregarN8NLiquidez()">
+                <svg width="11" height="11" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Conectar
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="dbg" id="dbg"></div>
+
+    <!-- TELA VAZIA LIQUIDEZ -->
+    <div id="semPlanilhaLiq" style="display:none">
+      <div style="text-align:center;padding:4rem 2rem;background:var(--white);border:0.5px solid var(--border);border-radius:var(--r)">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+          <svg width="22" height="22" fill="none" stroke="#185FA5" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:500;margin-bottom:8px">Nenhuma planilha de liquidez carregada</div>
+        <div style="font-size:13px;color:var(--muted)">Use o botão <b>Planilha de Liquidez</b> no topo da página para carregar o arquivo.</div>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO LIQUIDEZ -->
+    <div id="liqContent" style="display:none">
+
+      <!-- FILTROS -->
+      <div class="filtro-bar" style="margin-bottom:1.25rem">
+        <span class="filtro-label">Vendedor:</span>
+        <select class="filtro-select" id="liqFiltroVend" onchange="renderLiquidez()">
+          <option value="">Todos os vendedores</option>
+        </select>
+        <span class="filtro-label" style="margin-left:4px">Mês:</span>
+        <select class="filtro-select" id="liqFiltroMes" onchange="renderLiquidez()">
+          <option value="">Todos</option>
+        </select>
+        <span class="filtro-count" id="liqFiltroCount"></span>
+      </div>
+
+      <!-- CARDS RESUMO -->
+      <div class="sl">Resumo de Liquidez</div>
+      <div class="mts" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:1.25rem">
+        <div class="mc"><div class="mlb">Total de Contratos</div><div class="mv" id="lm1">—</div><div class="ms nt" id="ls1"></div></div>
+        <div class="mc"><div class="mlb">Clientes Liquidados</div><div class="mv" id="lm2">—</div><div class="ms up2" id="ls2"></div></div>
+        <div class="mc"><div class="mlb">Inadimplentes</div><div class="mv" id="lm3">—</div><div class="ms dg" id="ls3"></div></div>
+        <div class="mc"><div class="mlb">Churn (Cancelados)</div><div class="mv" id="lm4">—</div><div class="ms dg" id="ls4"></div></div>
+        <div class="mc"><div class="mlb">Receita Liquidada</div><div class="mv" style="font-size:18px" id="lm5">—</div><div class="ms up2" id="ls5"></div></div>
+      </div>
+
+      <!-- COMISSIONAMENTO -->
+      <div class="card" style="margin-bottom:1rem" id="liqComissCard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="sl" style="margin-bottom:0">Comissionamento por Vendedor</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px">
+            <span style="color:var(--muted)">% comissão sobre liquidez:</span>
+            <input type="number" id="percComissao" min="0" max="100" step="0.5" value="3"
+              style="width:60px;padding:4px 6px;font-size:12px;border:0.5px solid var(--border);border-radius:var(--rs);font-family:inherit;text-align:center"
+              onchange="renderLiquidez()" title="Percentual de comissão sobre o valor liquidado"/>
+            <span style="color:var(--muted)">%</span>
+            <span style="color:var(--muted);margin-left:4px">Base mínima: R$</span>
+            <input type="number" id="baseComissao" min="0" step="100" value="4000"
+              style="width:80px;padding:4px 6px;font-size:12px;border:0.5px solid var(--border);border-radius:var(--rs);font-family:inherit;text-align:center"
+              onchange="renderLiquidez()" title="Valor base — comissão incide sobre o que exceder"/>
+          </div>
+        </div>
+        <div class="gw">
+          <table class="gt">
+            <thead><tr>
+              <th>#</th><th>Vendedor</th><th>Liquidados</th><th>Inadimplentes</th>
+              <th>Churn</th><th>Receita Liquidada</th><th>Base</th><th>Comissão Estimada</th>
+            </tr></thead>
+            <tbody id="liqTabVend"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TABELAS DETALHADAS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+
+        <div class="card">
+          <div class="sl">Clientes Liquidados</div>
+          <div class="dw">
+            <table class="dt" id="liqTabPago">
+              <thead><tr><th>Cliente</th><th>Vendedor</th><th>Plano</th><th>Valor</th><th>Vencimento</th><th>Pagamento</th></tr></thead>
+              <tbody id="liqPagoBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sl">Clientes Inadimplentes</div>
+          <div class="dw">
+            <table class="dt" id="liqTabInad">
+              <thead><tr><th>Cliente</th><th>Vendedor</th><th>Plano</th><th>Valor</th><th>Vencimento</th><th>Status</th></tr></thead>
+              <tbody id="liqInadBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CHURN -->
+      <div class="card">
+        <div class="sl">Churn — Cancelamentos Pós-Habilitação</div>
+        <div class="dw">
+          <table class="dt">
+            <thead><tr><th>Cliente</th><th>Vendedor</th><th>Plano</th><th>Valor</th><th>Data Venda</th><th>Data Ativação</th><th>Data Pgto</th></tr></thead>
+            <tbody id="liqChurnBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- end liqContent -->
+  </div>
+</div><!-- end page-liq -->
+
+</body>
+</html>
